@@ -1,0 +1,1040 @@
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />         
+        <title>iAUTHOR</title>       
+        <script src="../package/jquery/dist/jquery.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.messagestore.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.fallbacks.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.language.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.parser.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.emitter.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.emitter.bidi.js"></script>
+        <script src="../jquery/i18n/url.min.js"></script>
+        <script>
+            var locale_global=url('?locale');
+            if(locale_global== undefined || locale_global==''){
+                locale_global='en';
+            } 
+        </script>
+        <script src="../package/lodash/index.js"></script>
+        <script src="../package/backbone/backbone.js"></script>
+        <script src="../package/graphlib/dist/graphlib.core.js"></script>
+        <script src="../package/dagre/dist/dagre.core.js"></script>
+        <script src="../build/rappid.min.js"></script>
+       
+
+
+
+
+	<!--<script src="http://ajax.aspnetcdn.com/ajax/modernizr/modernizr-2.8.3.js"></script>-->
+        <script type="text/javascript" src="../js/jquery-ui.min-1.11.1.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/infragistics.core.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/infragistics.lob.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_core.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_collections.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_text.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_io.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_ui.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.documents.core_core.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_collectionsextended.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.excel_core.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_threading.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_web.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.xml.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.documents.core_openxml.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.excel_serialization_openxml.js"></script>
+
+        <link rel="stylesheet" href="../font-awesome-4.6.3/css/font-awesome.min.css" type="text/css" />
+        <link rel="stylesheet" href="../dist/themes/default/style.min.css" />
+        <link rel="stylesheet" type="text/css" href="../build/rappid.min.css">
+        <link rel="stylesheet" type="text/css" href="../css/style.css">
+        <link rel="stylesheet" type="text/css" href="../css/theme-picker.css">
+        
+        <style>
+
+            #reqTable, #nodeTraceTable ,#newstatusTable,#modifiedstatusTable,#existingstatusTable,#deletedstatusTable{
+                color: black;
+                background: #fff;
+                font-size: 12px;
+                padding: 0;
+                margin:0px auto;
+                width: 99%;     
+                border-bottom: 1px solid #B4B4B4;           
+            }
+
+            
+
+            #reqTable tr td:last-child, #nodeTraceTable tr td:last-child,
+            #newstatusTable tr td :last-child,#modifiedstatusTable tr td :last-child,#existingstatusTable tr td :last-child,#deletedstatusTable tr td :last-child{
+                border-right: none;
+            }
+
+            
+
+            #reqTable tr th:last-child, #nodeTraceTable tr th:last-child, #modifiedstatusTable tr th:last-child,
+            #existingstatusTable tr th:last-child,#newstatusTable tr th:last-child,#deletedstatusTable tr th:last-child
+            {
+                border-right: none;
+            }
+
+            #reqTable tr:last-child td, #nodeTraceTable tr:last-child td,#modifiedstatusTable tr:last-child td,
+            #existingstatusTable tr:last-child td,#newstatusTable tr:last-child td,#deletedstatusTable tr:last-child td
+            {
+                border-bottom: none;
+            }
+
+            div.tab {
+               
+                background-color: #f1f1f1;
+            }
+            /* Style the buttons inside the tab */
+            div.tab button {
+                background-color: inherit;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 14px 16px;
+                transition: 0.3s;
+            }
+            /* Change background color of buttons on hover */
+            div.tab button:hover {
+                background-color: #ddd;
+            }
+
+            /* Create an active/current tablink class */
+            div.tab button.active {
+                background-color: #ccc;
+            }
+
+            /* Style the tab content */
+            .tabcontent {
+                display: none;
+                padding: 6px 12px;
+                border: 1px solid #ccc;
+                border-top: none;
+                overflow: auto;
+            }
+
+        </style>
+    </head>
+    <body onload="loaddata()">
+            <div id="modal-bg"></div>
+            <div id="bodyoverlay"></div>
+    <script>
+        var isAdmin=false;
+
+        $(document).ready(function() { 
+            loadI18Ndata('REGRESSION');
+            $("#homeId").on('click', createHome);
+            $(".reg-bottompanel").hide();
+           $(".regtabs .close-btn").click(function(){              
+                $(".reg-bottompanel").hide();
+           });
+            $("#compareid").click(function(){
+                compare();
+                $(".reg-bottompanel").show();
+                $(".reg-bottompanel .regtabs li:nth-child(1) a").trigger('click');
+            });
+
+            $("#backid").on("click",back);
+
+            if(session.userDetails!=undefined){
+                 printUserName(session.userDetails.name);
+                 if(session.userDetails.roleName==='Admin' || session.userDetails.roleName==='Super Admin' ) {
+                    isAdmin=true;           
+                }      
+                if(!isAdmin){
+                    $("#adminGuideId").remove();
+                }
+            }
+           
+            var isbool;
+              
+        });
+      
+        function loaddata(){
+            var theId = getParameterByName("child");
+            var arr =theId.split(",");
+
+            forcall(arr); 
+
+            compare();         
+        }
+
+      function forcall(arr){
+          tempsel1=[];
+          tempsel2=[];
+          for (var i = 0; i<arr.length; i++){
+                var id=arr[i].split(":")[0];
+                var val=arr[i].split(":")[1];
+                $('<option>').val(id).text(val).appendTo('#select1');
+                $('<option>').val(id).text(val).appendTo('#select2');
+            }
+          $("#select1").val($("#select1 option:eq(-2)").val());
+          $("#select2").val($("#select2 option:last").val());
+      }
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+    </script>
+
+
+
+
+
+
+<div id="mainContainer">
+        <!--
+            <div style="margin-left: 240px;position: relative;left: 250px;"><span style="font-size: 20px;font-weight: bold;padding-top:5px;padding-bottom: 5px;display:block;">iAuthor Ver 2.0  </span></div> -->
+        <div class="MainHeading">
+       <a href="#" class="logo"><img src="../images/Capgemini_Logo.png"></a>
+            <span class="horzontaline"></span>
+            <h1>iAUTHOR</h1>
+            <div class="header-right">
+           <ul id="navigation-main">
+                <li id='homeId'><a href="#">Home</a></li>
+                <!-- <li><a href="pages/admin.html">Admin</a></li>-->
+                <li id="nav-help"><a title="Help" id="helpId"><span>?</span></a>
+                    <ul id="subnav">
+                        <li id='userGuideId'><a href="../docs/iAuthor_User_Guide.pdf" target="_blank">User Guide</a></li>
+                        <li id='adminGuideId'><a href="../docs/iAuthor_Admin_Guide.pdf" target="_blank">Admin Guide</a></li>                 
+                    </ul>
+                </li>
+            </ul>
+            <div id="userNameId" class="reglogout">
+                    <span class="welcometext">Welcome</span>
+                <span><a href="#" title="Logout" class="logouttxt"></a></span>
+            </div>
+           </div>
+        </div>
+
+        <div style="padding:8px;">
+                <table id="compareTable">
+                    <tr>
+                        <td>Compare Version</td>
+                        <td><select id="select1"> </select></td>
+                        <td>and</td>
+                        <td><select id="select2"> </select></td>
+                        <td></td>
+                        <td><button id="compareid">compare</button></td>
+                        <!--<td><button id="backid">Back</button></td>-->
+                    </tr>
+                </table>        
+            </div>
+        
+            <div style="width: 100%;height:30%;overflow: auto;">
+        
+        
+                <div id="app1" style="float: left; width: 50%;height: 545px; ">
+                     <div id="daigr1" class="chart-container"></div>
+                    <div style="float: left;">
+                        <div>
+                            <label id="label1" style="position:relative;"> </label>
+                        </div>
+                        <div id="nav1" class="navigator-container">
+                        </div>
+                    </div>
+                </div>
+        
+        
+        
+                <div id="app2" style="float: left; width: 50%;height: 545px; ">
+                    <div id="daigr2" class="chart-container"></div>
+                    <div style="float: left;">
+                        <div><label id="label2" style="position:relative;"> </label></div>                    
+                        <div id="nav2" class="navigator-container">
+                        </div>
+                    </div>
+                </div>               
+            </div>
+             <div class="reg-bottompanel">
+                <ul class="regtabs">
+                    <li><a href="#tab1"><i class="fa fa-table"></i><span id="re_scen_status_label">Scenario Status</span></a></li>
+                    <li><a href="#tab2"><i class="fa fa-building-o" aria-hidden="true"></i><span id="re_node_trace_label">Node Traceability</span></a></li>                   
+                    <li style="float:right;"><span class="close-btn"></span></li>
+                    
+                </ul>
+                <div class="tabpanelcontent">
+                <div id="tab1" class="tab_content">
+                        <ul class="regtabs">   <!-- Add tabs here -->
+                            <li><a id="tab2_label1" href="#tab2-1" data-prop="new">New</a></li>
+                            <li><a id="tab2_label2" href="#tab2-2" data-prop="exist">Existing</a></li>
+                            <li><a id="tab2_label3" href="#tab2-3" data-prop="modified">Modified</a></li>
+                            <li><a id="tab2_label4" href="#tab2-4" data-prop="deleted">Deleted</a></li>
+                        </ul>
+                        <div id="tab2-1">
+                                <table id="newstatusTable">
+                                        <thead>
+                                       <tr>
+                                        <th style="width:5%;">SI</th>
+                                        <th style="width:95%;">ID</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                    </table>
+                        </div>
+                        <div id="tab2-2">
+                                <table id="existingstatusTable">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:20%;">SI</th>
+                                                <th style="width:80%;">ID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                        </div>
+                        <div id="tab2-3">
+                                <table id="modifiedstatusTable">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:20%;">SI</th>
+                                            <th style="width:80%;">ID</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                        </div>
+                        <div id="tab2-4">
+                                <table id="deletedstatusTable">
+                                        <thead>
+                                        <tr>
+                                            <th style="width:20%;">SI</th>
+                                            <th style="width:80%;">ID</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                        </div>
+                </div>
+                <div id="tab2" class="tab_content">
+                        <table id="nodeTraceTable">
+                            <thead>
+                               <tr>
+                                   <th style="width:10%;">#</th>
+                                   <th style="width:15%;">Scenario ID</th>
+                                   <th style="width:55%;">Scenario Name</th> 
+                                   <th style="width:10%;">Criticality</th>
+                                   <th style="width:10%;">Risk Exposure</th>
+                                </tr>
+                            </thead>
+                                <tbody></tbody>
+                            </table>                   
+                </div>
+                </div>
+</div>
+</div>
+<div id="popupdata"></div>
+<script src="../js/scenarioFunctions.js"></script>
+<script src="../js/home.js"></script>
+
+
+<!-- Application files:  -->
+<script src="../js/config/inspector.js"></script>
+<script src="../js/config/selection.js"></script>
+<script>
+    var fileref=document.createElement('script');
+    fileref.setAttribute("type","text/javascript");
+    fileref.setAttribute("src", "../js/config/inspector_"+locale_global+".js");
+    document.getElementsByTagName("body")[0].appendChild(fileref)
+    fileref=document.createElement('script');
+    fileref.setAttribute("type","text/javascript");
+    fileref.setAttribute("src", "../js/config/halo_"+locale_global+".js");
+    document.getElementsByTagName("body")[0].appendChild(fileref)
+</script>       
+<script src="../js/config/stencil.js"></script>
+<script src="../js/config/toolbar.js"></script>
+<script src="../js/config/sample-graphs.js"></script>
+<script src="../js/views/main.js"></script>
+<script src="../js/views/theme-picker.js"></script>
+<script src="../js/models/joint.shapes.app.js"></script>
+<script src="../app/validation.js"></script>
+<script src="../app/app.js"></script>
+<script>
+        session.userDetails = JSON.parse(localStorage.getItem("session"));
+        var scenarioV1=[];
+        var scenarioV2=[];
+        var scenarioDataDBV1=[];
+        var scenarioDataDBV2=[];
+        var selId;
+        var selId1;
+        var selVersion='';
+        var currentFlowV1='';
+        var currentFlowV2='';
+        var previousScenarioV1;
+        var previousScenarioV2;
+        var prevoiusIndex;
+        var prevoiusIndexV1;
+        var selIdgraph;
+        var selId1graph;
+        var comparescenarioV1=[];
+        var comparescenarioV2=[];
+        var app1daigram;
+        var app2daigram;
+        var existindex=[];
+        var modifiedindex=[];
+        var existing=[];
+        var newindex=[];
+        var deleteindex=[];
+        var prevoiusmodifyIndex;
+        var prevoiusnewIndex;
+        var prevoiusexistIndex;
+        var prevoiusdeleteIndex;
+        var clearscenarioV1;
+        var clearscenarioV2;
+
+
+      
+        function back(){
+            history.go(-1);
+        }
+
+        function compare()
+        {
+           
+            $('#bodyoverlay').addClass('overlay'); 
+            $("#modal-bg").addClass('bgopacity');
+            scenarioV1=[];
+            scenarioV2=[];
+            var sel= $("#select1 option:selected").val();
+            var sel2= $("#select2 option:selected").val();
+             $("#label1").text($("#select1 option:selected").text()+"_diagram");
+            $("#label2").text($("#select2 option:selected").text()+"_diagram");
+            existindex=[];
+            modifiedindex=[];
+            existing=[];
+            newindex=[];
+            deleteindex=[];
+
+            var data = {fileAdd:"SMV",versionId:sel};
+            var daigram = null;
+            sendAJAX(data, app_server_url, function (data) {
+                    $('#daigr1').empty();
+                    $('#nav1').empty();
+                    if (data["code"] == '200') {
+                        var mainObj = data.data;
+                        daigram = mainObj.diagram_data;
+                        selId = mainObj.id;
+                        app1 = new App.MainView({el: '#app1'});
+                        if (daigram != null) {
+                            joint.setTheme('material');
+                            app1.graph.fromJSON(daigram);
+                            app1daigram=app1.graph;
+                            app1.paper.setInteractivity(false);
+
+                            app1.paper.on('cell:pointerclick', function (cellView) {
+                                $(".reg-bottompanel").show();
+                                $(".reg-bottompanel .regtabs li:nth-child(2) a").trigger('click');
+                               
+                                if(scenarioV1.length<=0) {
+                            		 generateScenarios('regressionView', app1.graph);
+                                     scenarioV1 = scnerios;      
+                                }
+                                getNodeTraceInRegView(selId, 'v1', cellView.model);
+                            });
+                        }
+                        else
+                        {
+                            dailogmsg("Diagram is not available for: " + version + " " + "select different version");
+                        }
+
+                    }
+                    else
+                        {
+                            dailogmsg(data["msg"]);
+                        }
+                        $('#bodyoverlay').removeClass('overlay'); 
+                       $("#modal-bg").removeClass('bgopacity');
+                });
+
+             var dataapp2 = {fileAdd:"SMV",versionId:sel2};
+            sendAJAX(dataapp2,app_server_url,function(dataapp2)
+            {
+                $('#daigr2').empty();
+                $('#nav2').empty();
+                    var mainObj = dataapp2.data;
+                        daigram = mainObj.diagram_data;
+                        version= mainObj.description;
+                        selId1=mainObj.id;
+                                      
+                     selId1graph = app2.graph;
+                     app2 = new App.MainView({ el: '#app2' });
+                     if(daigram!=null)
+                     {
+                       
+                         app2.graph.fromJSON(daigram);
+                         app2daigram=app2.graph;
+                         app2.paper.setInteractivity(false);
+
+                         app2.paper.on('cell:pointerclick', function(cellView) {
+                            
+                             $(".reg-bottompanel .regtabs li:nth-child(2) a").trigger('click');
+                             if(scenarioV2.length<=0) {
+                                 generateScenarios('regressionView', app2.graph);
+                                 scenarioV2 = scnerios;
+                             }
+                             getNodeTraceInRegView(selId1,'v2',cellView.model);
+                                                   });
+                         displayDelModExtNew(selId,selId1);
+                     }
+                     else
+                     {
+                        dailogmsg("Diagram is not available for: "+version+" "+"select different version");
+                     }
+                    
+            });
+
+        }
+        function displayDelModExtNew(oldId,newId)
+        {
+          
+            var oldJson={};
+            var oldlist = [];
+            var oldval = oldId;
+            var newval = newval;
+            var oldcomtype=[];
+            var newcomtype=[];
+            var newpath=[];
+            var oldpath='';
+                       
+            if (oldval != undefined)
+            {
+              
+                var data = {fileAdd: "GAS", modelVersionId: oldval};
+               sendAJAX(data, app_server_url, function (data) {
+                    var mainObj = data.data;       
+                    var oldblobdaigram = app1daigram;
+                                    
+                    for (var i = 0; i < mainObj.length; i++)
+                    {
+                        oldJson[mainObj[i].path]=mainObj[i].name;
+                        oldlist.push(mainObj[i].name);
+                        oldpath+=mainObj[i].path+';';
+                    }
+                
+                    if(oldblobdaigram!=null){
+                        var oldjsonpath= framecompoentpath(oldblobdaigram,oldpath);
+                        callnewdata(newId, oldlist,oldJson,oldjsonpath);
+                    }
+                });
+            }
+
+        }
+
+      function  callnewdata(newId,oldlist,oldJson,oldjsonpath)
+      {
+         
+
+          var newlist = [];
+          var newJson={};
+          var newpath='';
+          var newblobdaigram;
+            if(newId!= undefined)
+            {
+                    var data = {fileAdd: "GAS", modelVersionId: newId};
+                    sendAJAX(data, app_server_url, function (data) {
+                        var mainObj = data.data;
+                        var daigram = app2daigram ;
+                        for (var i = 0; i < mainObj.length; i++) {
+                            newJson[mainObj[i].path]=mainObj[i].name;
+                            newlist.push(mainObj[i].name);
+                            newpath+=mainObj[i].path+';';
+                        }
+                        if(daigram!=null){
+                            var newjsonpath=framecompoentpath(daigram,newpath);
+                            comparenewold(oldlist, newlist,oldJson,newJson,oldjsonpath,newjsonpath);
+                        }
+                    });
+                }
+        }
+
+        function comparenewold(oldlist,newlist,oldJson,newJson,oldjsonpath,newjsonpath)
+        {
+           
+            var row ="";
+            var newScenarioList = [];
+            var existingScenarioList=[];
+            var modifiedScenarioList=[];
+            var deletedScenarioList = [];
+            var oldtypepath=[];
+            var oldcomponetpath=[];
+            var newtypepath=[];
+            var newcomponetpath=[];
+            var oldtypepath=[];
+            var newtypepath=[];
+            var newScenarioIndex=[];
+            var delrow="";
+            var oldcompname='';
+            var newcompname='';
+
+            //delete rows
+           $("#newstatusTable tr td").remove();
+           $("#existingstatusTable tr td").remove();
+           
+         
+            $("#deletedstatusTable tr td").remove();
+            $("#modifiedstatusTable tr td").remove();
+                
+              
+              
+                for(var i=0;i<oldjsonpath.length;i++)
+                {
+                   
+                    var path=oldjsonpath[i];
+                     var pathsplit=path.split(";");
+                     for(var k=0;k<pathsplit.length;k++)
+                     {
+                        var name_type=pathsplit[k].split(":");
+                        if(name_type[0]!=''){  
+                        oldcompname+=name_type[0].replace(/\s/g,'')+';';
+                        }
+                     }
+                               
+                     oldcomponetpath.push(oldcompname);
+                     oldcompname='';
+                }
+                for(var i=0;i<newjsonpath.length;i++)
+                {
+                   
+                    var path=newjsonpath[i];
+                     var pathsplit=path.split(";");
+                     for(var k=0;k<pathsplit.length;k++){
+                        var name_type=pathsplit[k].split(":");
+                        if(name_type[0]!=''){ 
+                            newcompname+=name_type[0].replace(/\s/g,'')+';';
+                        }
+                     }
+                               
+                    newcomponetpath.push(newcompname);
+                    newcompname='';
+                }
+
+                var oldtype='';
+                var newtype='';
+                for(var i=0;i<oldjsonpath.length;i++)
+                {
+                   
+                    var path=oldjsonpath[i];
+                     var pathsplit=path.split(";");
+                     for(var k=0;k<pathsplit.length;k++){
+                            var name_type=pathsplit[k].split(":");
+                            if(name_type[1]!=undefined){
+                            oldtype+=name_type[1]+';';
+                            } 
+                     }
+                               
+                     oldtypepath.push(oldtype);
+                     oldtype='';
+                }
+
+                for(var i=0;i<newjsonpath.length;i++)
+                {
+                   
+                    var path=newjsonpath[i];
+                     var pathsplit=path.split(";");
+                     for(var k=0;k<pathsplit.length;k++){
+                                 var name_type=pathsplit[k].split(":");
+                                if(name_type[1]!=undefined){ 
+                                 newtype+=name_type[1]+';';
+                                }
+                     }
+                               
+                     newtypepath.push(newtype);
+                     newtype='';
+                }
+               
+               
+                var oldSceLength=oldcomponetpath.length-1;
+                var newSceLength=newcomponetpath.length-1;
+                              
+                for(var k=0;k<oldSceLength;k++)
+                {
+                    var isModifiedScenario=false;
+                    var isNamePathExists=false;
+                    var isTypePathExists=false;
+                                  
+                    if(newcomponetpath.includes(oldcomponetpath[k])){
+                        isNamePathExists=true;
+                    }
+                    if(newtypepath.includes(oldtypepath[k])){
+                        isTypePathExists=true;
+                    }
+                    if((isNamePathExists && !isTypePathExists) || (!isNamePathExists && isTypePathExists)){
+                        isModifiedScenario=true;
+                    }else if(isNamePathExists && isTypePathExists){
+                        existindex.push(k);
+                    }
+                    if(!newjsonpath.includes(oldjsonpath[k])){
+                        if(!isModifiedScenario){
+                            deleteindex.push(k);
+                        }
+                    }                                             
+               }
+
+               for(var k=0;k<newSceLength;k++)
+                {
+                    var isModifiedScenario=false;
+                    var isNamePathExists=false;
+                    var isTypePathExists=false;
+                    if(oldcomponetpath.includes(newcomponetpath[k])){
+                        isNamePathExists=true;
+                    }
+                    if(oldtypepath.includes(newtypepath[k])){
+                        isTypePathExists=true;
+                    }
+                    if((isNamePathExists && !isTypePathExists) || (!isNamePathExists && isTypePathExists)){
+                        isModifiedScenario=true;
+                        modifiedindex.push(k);
+                    }
+                    if(!oldjsonpath.includes(newjsonpath[k])){
+                        if(!isModifiedScenario){
+                            newindex.push(k);
+
+                        }
+                    }                                             
+               }
+              
+              for(var k=0;k<modifiedindex.length;k++){
+                modifiedScenarioList.push(newcomponetpath[modifiedindex[k]]);
+              }
+
+              for(var k=0;k<newindex.length;k++){
+                newScenarioList.push(newcomponetpath[newindex[k]]);
+              }
+
+           
+              for(var k=0;k<existindex.length;k++){
+                existingScenarioList.push(oldcomponetpath[existindex[k]]);
+              }
+
+              for(var k=0;k<deleteindex.length;k++){
+                deletedScenarioList.push(oldcomponetpath[deleteindex[k]]);
+              }
+            
+          for(var k=0;k<newScenarioList.length;k++){
+              row+="<tr><td>"+(k+1)+"</td><td>"+newScenarioList[k]+"</td></tr>";
+          }
+            $("#newstatusTable tbody").append(row);
+
+            var existrow;
+            for(var ex=0;ex<existingScenarioList.length;ex++){
+                existrow+="<tr><td>"+(ex+1)+"</td><td>"+existingScenarioList[ex]+"</td></tr>";
+            }
+            $("#existingstatusTable tbody").append(existrow);
+
+            for(var k=0;k<deletedScenarioList.length;k++){
+                delrow+="<tr><td>"+(k+1)+"</td><td>"+deletedScenarioList[k]+"</td></tr>";
+            }
+            $("#deletedstatusTable tbody").append(delrow);
+
+             var modifyrow;
+            for(var k=0;k<modifiedScenarioList.length;k++){
+                modifyrow+="<tr><td>"+(k+1)+"</td><td>"+modifiedScenarioList[k]+"</td></tr>";
+            }
+            $("#modifiedstatusTable tbody").append(modifyrow);
+
+            selIdgraph=null;
+            selId1graph=null;
+            oldcomponetpath='';
+            newcomponetpath='';
+            oldtypepath='';
+            newtypepath='';
+            } 
+
+
+            function getNodeTraceInRegView(modelId,version,modelObj){
+
+            data = {fileAdd:"GAS",modelVersionId:modelId};
+           selVersion=version;
+
+            if(version=='v1'){
+                if(scenarioDataDBV1.length<=0) {
+                    sendAJAX(data, app_server_url, function (data) {
+                     
+                        if (data["code"] == '200') {
+                            console.log("Loaded scenarios data from database successfully");
+                            scenarioDataDBV1 = data.data;
+                            renderNodeTraceInRegView(modelObj,scenarioV1,scenarioDataDBV1);
+                        } else {
+                            dailogmsg(data["msg"]);
+                        }
+                    });
+                }else{
+                    renderNodeTraceInRegView(modelObj,scenarioV1,scenarioDataDBV1);
+                }
+          }else{
+                if(scenarioDataDBV2.length<=0) {
+                    sendAJAX(data, app_server_url, function (data) {
+                      
+                        if (data["code"] == '200') {
+                            console.log("Loaded scenarios data from database successfully");
+                            scenarioDataDBV2 = data.data;
+                            renderNodeTraceInRegView(modelObj,scenarioV1,scenarioDataDBV2);
+                        } else {
+                            dailogmsg(data["msg"]);
+                        }
+                    });
+                }else{
+                    renderNodeTraceInRegView(modelObj,scenarioV2,scenarioDataDBV2);
+                }
+          }
+
+        }
+
+        function renderNodeTraceInRegView(cellModelObj,scnerios,scenariosDataDB){
+            $('#nodeTraceTable tbody').html('');
+            if(scnerios.length>0){
+                var dataSet = new Array();
+                var count=1;
+                $.each(scnerios, function (index, scnerio) {
+                    if($.inArray(cellModelObj,scnerio) > -1){
+                        $('#nodeTraceTable tbody').append('<tr><td>'+count+'</td><td>Scenario'+(index+1)+'</td><td>'+scenariosDataDB[index].name+'</td><td>'+
+                            scenariosDataDB[index].criticality+'</td><td>'+scenariosDataDB[index].risk+'</td></tr>');
+                        count++;
+                    }
+
+                });
+            }
+        }
+         $("#nodId").click(function(e){
+             $("#scenario_status").hide();
+         });
+        $(".tablinks").click(function(e){
+            var cityName = $(this).data('prop');
+            var i, tabcontent, tablinks;
+            $(".tablinks").removeClass('activeTab');
+            $(this).addClass('activeTab');
+            $(".tabcontent").hide();
+            $("#"+cityName).show();
+        });
+
+        jQuery('ul.regtabs').each(function(){   
+            var $active, $content, $links = jQuery(this).find('a');  
+            $active = jQuery($links.filter('[href="'+location.hash+'"]')[0] || $links[0]);
+            $active.addClass('active');
+            $content = $($active[0].hash);
+            $links.not($active).each(function () {
+                jQuery(this.hash).hide();
+            });    
+            jQuery(this).on('click', 'a', function(e){        
+                $active.removeClass('active');
+                $content.hide();       
+                $active = jQuery(this);
+                $content = jQuery(this.hash);
+                $active.addClass('active');
+                $content.show();
+                e.preventDefault();
+            });
+        });
+
+
+
+
+        $("#nodeTraceTable").on("click","tr",function(){
+            var $tds = $(this).closest('tr').find('td');
+            var scen=$tds.eq(2).text();
+            var elId =scen.charAt(scen.length-1);
+            if(selVersion ==='v1'){
+            if(prevoiusIndexV1!=undefined){
+                var  prevoiusFlowV1 = scenarioV1[prevoiusIndexV1];
+                clearSelectedScenario(prevoiusFlowV1);
+            }
+                currentFlowV1 =scenarioV1[elId-1];
+                applyColorToSelectedScenario(currentFlowV1);
+                prevoiusIndexV1=elId-1;
+            }else{
+                if(prevoiusIndex!=undefined){
+                    var  prevoiusFlowV2 = scenarioV2[prevoiusIndex];
+                    clearSelectedScenario(prevoiusFlowV2);
+                }
+                currentFlowV2 =scenarioV2[elId-1];
+                applyColorToSelectedScenario(currentFlowV2);
+                prevoiusIndex=elId-1;
+            }
+        });
+
+        $("#newstatusTable").on("click","tr",function(){
+            
+            var ntds=$(this).closest('tr').find('td');
+            var newid=ntds.eq(1).text();
+            var rowindex=ntds.eq(0).text();
+            if(scenarioV2.length<=0) {
+            generateScenarios('regressionView', app2daigram);
+            scenarioV2 = scnerios;
+            clearscenarioV2=scnerios;
+            }
+            if(prevoiusnewIndex!=undefined){
+                var prevousflow2=scenarioV2[newindex[prevoiusnewIndex]];
+                clearSelectedScenario(prevousflow2);
+            }
+            var newcurrentFlowV2 = scenarioV2[newindex[rowindex-1]];
+            if(newcurrentFlowV2!=undefined){
+                $('#bodyoverlay').addClass('overlay'); 
+                window.setTimeout( function(){applyColorToSelectedScenario(newcurrentFlowV2);$('#bodyoverlay').removeClass('overlay')} ,100);
+                prevoiusnewIndex=newindex[rowindex-1];
+            }
+               
+
+        });
+
+        $("#modifiedstatusTable").on("click","tr",function(){
+            var ntds=$(this).closest('tr').find('td');
+            var newid=ntds.eq(1).text();
+            var rowindex=ntds.eq(0).text();
+            if(scenarioV2.length<=0) {
+                generateScenarios('regressionView', app2daigram);
+                scenarioV2 = scnerios;
+                clearscenarioV2=scnerios;
+                }
+             var newId =newid.charAt(newid.length-1);
+               
+             if(prevoiusmodifyIndex!=undefined){
+                var prevousflow2=scenarioV2[modifiedindex[prevoiusmodifyIndex]];
+                clearSelectedScenario(prevousflow2);
+             }
+            
+             var newcurrentFlowV2 = scenarioV2[modifiedindex[rowindex-1]];
+             if(newcurrentFlowV2!=undefined){
+                $('#bodyoverlay').addClass('overlay'); 
+                window.setTimeout( function(){applyColorToSelectedScenario(newcurrentFlowV2);$('#bodyoverlay').removeClass('overlay')} ,100);
+             }
+             prevoiusmodifyIndex=modifiedindex[rowindex-1];
+
+         });
+
+         $("#deletedstatusTable").on("click","tr",function(){
+            var ntds=$(this).closest('tr').find('td');
+            var newid=ntds.eq(1).text();
+            var rowindex=ntds.eq(0).text();
+            if(scenarioV1.length<=0) {
+                generateScenarios('regressionView', app1daigram);
+                scenarioV1 = scnerios;
+                clearscenarioV1=scnerios;
+                }
+            
+             if(prevoiusdeleteIndex!=undefined){
+                var prevousflow1=scenarioV1[deleteindex[prevoiusdeleteIndex]];
+                clearSelectedScenario(prevousflow1);
+             }
+             var newcurrentFlowV1 = scenarioV1[deleteindex[rowindex-1]];
+             
+              if(newcurrentFlowV1!=undefined){
+                $('#bodyoverlay').addClass('overlay'); 
+                 window.setTimeout( function(){applyColorToSelectedScenario(newcurrentFlowV1);$('#bodyoverlay').removeClass('overlay')} ,100);
+                  prevoiusdeleteIndex=deleteindex[rowindex-1];
+                  
+            }
+             
+
+         });
+
+         $("#existingstatusTable").on("click","tr",function(){
+         
+            var ntds=$(this).closest('tr').find('td');
+            var newid=ntds.eq(1).text();
+            var rowindex=ntds.eq(0).text();
+            if(scenarioV1.length<=0) {
+                generateScenarios('regressionView', app1daigram);
+                scenarioV1 = scnerios;
+                clearscenarioV1=scnerios;
+                }
+             if(prevoiusexistIndex!=undefined){
+                var prevousflow1=scenarioV1[existindex[prevoiusexistIndex]];
+                clearSelectedScenario(prevousflow1);
+             }
+            
+             var newcurrentFlowV1 = scenarioV1[existindex[rowindex-1]];
+            if(newcurrentFlowV1!=undefined){ 
+                $('#bodyoverlay').addClass('overlay'); 
+                window.setTimeout( function(){applyColorToSelectedScenario(newcurrentFlowV1);$('#bodyoverlay').removeClass('overlay')} ,100);
+                prevoiusexistIndex=existindex[rowindex-1];
+            } 
+
+         });
+
+         function framecompoentpath(daigram,paths)
+       {
+        var componentName;
+        var type;
+        var pathjson={}; 
+        var daigramparsed= JSON.parse(JSON.stringify(daigram));
+         
+            for(var l=0;l<daigramparsed.cells.length;l++)
+                 {                
+                    var daigram_node  = daigramparsed.cells[l].id; 
+                     if(daigramparsed.cells[l].type == 'app.Link')
+                        {                                   
+                            if((daigramparsed.cells[l]).hasOwnProperty("labels")) 
+                            {
+                                if(daigramparsed.cells[l].labels.length>0){
+                                    componentName = daigramparsed.cells[l].labels[0].attrs.text.text;
+                                    type=daigramparsed.cells[l].type;
+                                }else if(daigramparsed.cells[l].source.hasOwnProperty("port"))
+                                    {
+                                    componentName = daigramparsed.cells[l].source.port;
+                                    type=daigramparsed.cells[l].type;
+                                                                                    
+                                    }
+                            }                                                        
+                        }else if(daigramparsed.cells[l].type =='app.RectangularModel' || daigramparsed.cells[l].type == 'bpmn.Gateway' || daigramparsed.cells[l].type == 'bpmn.Event'
+                                || daigramparsed.cells[l].type == 'bpmn.DataObject' || daigramparsed.cells[l].type == 'bpmn.Conversation' || daigramparsed.cells[l].type == 'bpmn.Message'
+                                || daigramparsed.cells[l].type == 'bpmn.Group'){                                     
+                            componentName=daigramparsed.cells[l].attrs['.label'].text;
+                            type=daigramparsed.cells[l].type;
+                        }else if(daigramparsed.cells[l].type=='bpmn.Choreography' || daigramparsed.cells[l].type =='bpmn.Activity' || daigramparsed.cells[l].type == 'bpmn.Annotation'){
+                            componentName==daigramparsed.cells[l].attrs['.content'].html;
+                            type=daigramparsed.cells[l].type;
+                        }else{                                   
+                            componentName = daigramparsed.cells[l].attrs.text.text;
+                            type=daigramparsed.cells[l].type; 
+                        }                      
+                        pathjson[daigram_node]={type:type,name:componentName};  
+                        daigram_node='';
+                        type='';
+                        componentName='';
+                        
+                }
+                                
+                  var scenariocomp_type='';
+                  var scenariocomp_type_arr=[];
+                   var scenario_type='';
+                   var patharr= paths.split(";");
+                      
+                   for(var k=0;k<patharr.length;k++)
+                   {
+                     var nodeids= patharr[k].split(",");
+                    for(var l=0;l<nodeids.length;l++)
+                     { 
+                        if(nodeids[l]!="")
+                        {  
+                            
+                            if(pathjson[nodeids[l]].name!='' && pathjson[nodeids[l]].type!='')
+                             {   
+                                var scenariocomp_type=pathjson[nodeids[l]].name+":"+pathjson[nodeids[l]].type;
+                                scenario_type+=scenariocomp_type+";";
+                                scenariocomp_type='';
+                             } 
+                        } 
+                                
+                    }
+                   scenariocomp_type_arr.push(scenario_type);
+                   scenario_type='';
+                } 
+           
+              
+                return scenariocomp_type_arr;
+                  
+       }  
+
+
+
+    </script>
+</body>
+</html>

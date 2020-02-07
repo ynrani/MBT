@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html>
+<head>    
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />     
+        <title>iAUTHOR</title>   
+        <link rel="stylesheet" href="../font-awesome-4.6.3/css/font-awesome.min.css" type="text/css" />  
+        <link rel="stylesheet" href="../jquery/tabulator/css/tabulator.min.css" >       
+        <link rel="stylesheet" type="text/css" href="../css/reveng.css">
+         <script type="text/javascript" src="../package/jquery/dist/jquery.js"></script>
+        <script type="text/javascript" src="../jquery/tabulator/js/jquery-ui.min.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.messagestore.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.fallbacks.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.language.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.parser.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.emitter.js"></script>
+        <script src="../jquery/i18n/jquery.i18n.emitter.bidi.js"></script>
+        <script src="../jquery/i18n/url.min.js"></script>       
+        <script>
+            var locale_global=url('?locale');
+            if(locale_global== undefined || locale_global==''){
+                locale_global='en';
+            } 
+        </script>
+     
+       
+
+
+        <script type="text/javascript" src="../js/jquery-ui.min-1.11.1.js"></script>
+        <script type="text/javascript" src="../js/igniteui/2017.1/infragistics.core.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/infragistics.lob.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_core.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_collections.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_text.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_io.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_ui.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.documents.core_core.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_collectionsextended.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.excel_core.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_threading.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.ext_web.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.xml.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.documents.core_openxml.js"></script>
+         <script type="text/javascript" src="../js/igniteui/2017.1/modules/infragistics.excel_serialization_openxml.js"></script>
+     
+             <link rel="stylesheet" href="../font-awesome-4.6.3/css/font-awesome.min.css" type="text/css" />
+            
+             <link rel="stylesheet" type="text/css" href="../build/rappid.min.css">
+             <link rel="stylesheet" type="text/css" href="../css/style.css">
+             <link rel="stylesheet" type="text/css" href="../css/theme-picker.css">
+
+      <style>
+                #importRevEngFile{
+                    width: 99%;
+                    display:table;
+                    margin-right: auto;
+                    margin-left: auto;
+                    padding:16px 16px;
+                    font-size:12px;
+                    margin-top:20px;
+                }
+
+                #fieldMapping{
+                    width: 97%;
+                    display:table;
+                    padding:16px 16px;
+                    font-size:12px;
+                    margin:20px;
+                }
+
+                #fieldMappingSearch {
+                    width:  100%; 
+                    margin-right: auto;
+                    margin-left: auto;
+                }           
+                body { font-family: sans-serif; }
+                #footer-modal-RevEng{
+                    overflow: auto;                    
+                    margin-top: 20px;
+                    margin-left: 130px;
+                }
+                button {
+                    padding: 5px 10px;
+                    border: 1px solid #25682a;
+                    background: #3FB449;
+                    /* Old browsers */
+                    /* FF3.6-15 */
+                    /* Chrome10-25,Safari5.1-6 */
+                    background: -webkit-gradient(linear, left top, left bottom, from(#3FB449), to(#25682a));
+                    background: linear-gradient(to bottom, #3FB449 0%, #25682a 100%);
+                    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                    color: #fff;
+                    font-weight: bold;
+                    }
+
+                    button:hover {
+                    border: 1px solid #328e3a;
+                    background: #5fc768;
+                    /* Old browsers */
+                    /* FF3.6-15 */
+                    /* Chrome10-25,Safari5.1-6 */
+                    background: -webkit-gradient(linear, left top, left bottom, from(#5fc768), to(#328e3a));
+                    background: linear-gradient(to bottom, #5fc768 0%, #328e3a 100%);
+                    /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                    cursor: pointer;
+                    color: #000;
+                    }
+
+                    .table-controls-legend {
+                        margin: 10px 0 5px 0;
+                        color: #3FB449;
+                        font-weight: bold;
+                        font-size: 16px;
+                        }
+
+                        .table-controls {
+                        margin-bottom: 10px;
+                        padding: 10px 5px 0 5px;
+                        background: #eee;
+                        font-size: 14px;
+                        }
+
+                        .table-controls input,
+                        .table-controls select,
+                        .table-controls button,
+                        .table-controls > span {
+                        margin: 0 5px 10px 5px;
+                        }
+
+                        .table-controls input,
+                        .table-controls select {
+                        -webkit-box-sizing: border-box;
+                                box-sizing: border-box;
+                        padding: 4px 10px;
+                        border: 1px solid #0070AD;
+                        background: #fafafa;
+                        outline: none;
+                        }
+
+                        .table-controls {
+                        margin: 10px 0;
+                        }
+
+                        .table-controls i.fa-filter {
+                        position: relative;
+                        margin-left: 10px;
+                        margin-right: -25px;
+                        color: #3FB449;
+                        z-index: 10;
+                        }
+
+                        .table-controls input {
+                        position: relative;
+                        width: calc(100% - 650px);
+                        min-width: 100px;
+                        margin-left: 0;
+                        padding-left: 10px;
+                        z-index: 1;
+                        }
+
+                        .table-controls button {
+                        float: right;
+                        }
+
+                        .table-controls button[name="hide-col"] .hide-rating {
+                        display: none;
+                        }
+
+                        .table-controls button[name="hide-col"].col-hide .show-rating {
+                        display: none;
+                        }
+
+                        .table-controls button[name="hide-col"].col-hide .hide-rating {
+                        display: inline-block;
+                        }            
+            </style>
+            
+
+</head>
+<body>
+
+       
+        <div id="modal-bg"></div>
+        <div id="bodyoverlay"></div>
+        <div id="mainContainer">
+            <div class="MainHeading">
+                <a href="#" class="logo"><img src="../images/Capgemini_Logo.png"></a>
+                        <span class="horzontaline"></span>
+                        <h1>iAUTHOR</h1>
+                        <div class="header-right">
+                            <ul id="navigation-main">
+                                <li id='homeId'><a href="#">Home</a></li>
+                                <!-- <li><a href="pages/admin.html">Admin</a></li>-->
+                                <li id="nav-help"><a title="Help" id="helpId"><span>?</span></a>
+                                    <ul id="subnav">
+                                        <li id='userGuideId'><a href="../docs/iAuthor_User_Guide.pdf" target="_blank">User Guide</a></li>
+                                        <li id='adminGuideId'><a href="../docs/iAuthor_Admin_Guide.pdf" target="_blank">Admin Guide</a></li>                 
+                                    </ul>
+                                </li>
+                            </ul>
+                        <div id="userNameId" class="reglogout"> 
+                            <span class="welcometext">Welcome</span>
+                            <span><a href="#" title="Logout" class="logouttxt"></a></span>
+                        </div>
+                    </div>
+                </div>      
+                <div class="wrapper" id="revengpage">
+                        <h3 class="title">Reverse Engineering</h3>
+                        <div id="v-nav">
+                            <ul>
+                                <li tab="tab1" class="first current">
+                                    <i class="fa fa-upload" aria-hidden="true"></i>
+                                    <div class="tabText">Import</div>
+                                </li>
+                                <li tab="tab2">
+                                    <i class="fa fa-map" aria-hidden="true"></i>
+                                    <div class="tabText">Mapping</div>
+                                </li>
+                                <li tab="tab3">
+                                        <i class="fa fa-map-o" aria-hidden="true"></i>
+                                        <div class="tabText">Verify</div> 
+                                </li>
+                                <li tab="tab4">
+                                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                    <div class="tabText">Diagnose</div>
+                                </li>
+                                <li tab="tab5" class="last">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                    <div class="tabText">Preview</div>
+                                </li>
+                            </ul>
+            
+                            <div class="tab-content" id="importFileTabCon" style="overflow: initial;">
+                                <h4>Import File</h4>
+                                <div class="tabcontent-text">
+                                    <p><strong>Info!</strong> <span id="importFileTabInfo">Import your test case excel file here</span></p>
+                                </div>
+                                <div id="importRevEngFile">
+                                        <table id="header-modal-RevEng">
+                                            <tr>
+                                            <td style="vertical-align:top">Upload Test Case File:&nbsp;</td>
+                                            <td>
+                                                    <input id="importRevEngFileInput" type="file"  name="file" />
+                                                    <div id="importRevEngFileSupport" style="font-size: 14px;padding: 2px 5px 5px 20px;"> (Supports only xls, xlsx files.)</div>
+                                            </td>
+                                        </tr>
+                                        <tr><td>Select WorkSheet:</td><td><select id="importselectid" tabindex="9" class="icon-btn-disable"><option value=''>Select Sheet</option></select></td></tr>
+                                        <tr><td></td></tr>
+                                            <td>Header Row Number:&nbsp;</td><td><input id="headerRowNum" type="text" name="headerRowNum" value="1" class="icon-btn-disable"></td></tr>
+                                        </table>
+                                        <div id="footer-modal-RevEng"><input id="importRevEngButton" type="button" value="Import" class="global-btn navybluecolor-btn icon-btn-disable" disabled="disabled"/></div>                                                                                
+                                    </div>
+                            </div>
+            
+                            <div class="tab-content" id="fieldMapTabCon">
+                                <h4>Field Mapping</h4>   
+                                <div class="tabcontent-text">
+                                    <p><strong>Info!</strong> <span id="fieldMapTabInfo">Map your excel spread sheet columns with below specified template fields</span></p>
+                                </div>  
+                                <div class="errormessage-text" id="mapvalidation" style="display:none;">
+                                        <p><strong>Validation Error! </strong> Please map all mandatory fields.</p>
+                                    </div>             
+                                <div id="fieldMapping">                                         
+                                         <div id="propsedColumns" style="float:left">
+                                                 <span id="fmTemplateColLabel">Template Columns</span>   
+                                                 <ul>                                                 
+                                                     <li>Use Case / User Story</li>
+                                                     <li>Test Case ID</li>                                                    
+                                                     <li>Test Case Name<span class="required"></span></li>
+                                                     <li>Step ID</li>
+                                                     <li>Step Description<span class="required"></span></li>
+                                                     <li>Expected Result</li>                                                 
+                                                 </ul>
+                                         </div>
+                                         
+                                         <div id="mappedFields"  style="float:left;">
+                                             <span id="fmMappedColLabel">Map fields here</span> 
+                                             <ul>                                                
+                                                     <li></li>
+                                                     <li></li>
+                                                     <li></li>
+                                                     <li></li>
+                                                     <li></li>
+                                                     <li></li>                                                 
+                                            </ul>
+                                         </div>
+                                         <div id="excelColumns"  style="float:left;display:none;" >
+                                             <span id="fmExcelColLabel">Excel Columns</span> 
+                                             <ul>                                                                                        
+                                                
+                                             </ul>
+                                         </div>  
+                                         <div id="footer-fieldMapping"  style="width:98%;overflow: auto;padding-top: 20px;text-align: center;">
+                                             <input id="applyFieldMappingButton" type="button" value="Apply" class="global-btn navybluecolor-btn" >
+                                            </div>                                           
+                                     </div>           
+                            </div>
+            
+                            <div class="tab-content" id="verifyMap">
+                                <h4>Verify Mapping</h4>
+                                <div class="tabcontent-text">
+                                    <p><strong>Info!</strong> <span id="verifyMapTabInfo">Use Dice coefficient Threshold Match to diagnose step information</span></p>
+                                </div> 
+                                <div class="errormessage-text" id="rangevalidation" style="display:none;">
+                                        <p><strong>Validation Error! </strong> Dice coefficient Match should be number and should be in the range 0.60 to 1.00</p>
+                                    </div> 
+                                   <!-- <div class="errormessage-text" id="" style="display:none;">
+                                            <p><strong>Validation Error! </strong> Please map all mandatory fields.</p>
+                                        </div> -->
+                                <div id="verifyFieldMapping"> 
+                                    <div id="fieldMappingSearch">
+                                            <div id="tabulator-controls" class="table-controls">
+                                                <div id="tableSearch"> 
+                                                    <div>
+                                                    <div style="float:left"><span class="dicecoefftext">Dice coefficient Match:</span>
+                                                        <div style="float:right;">
+                                                            <input type="text" value="0.8" id="dies_coeff_id" class="coeffText" maxlength="4" onkeypress="return isNumberKey(event,this.id)" style="min-width:50px;width:50px;" />
+                                                        </div>
+                                                    </div> 
+                                                  <!-- <select id="dies_coeff_id">       
+                                                        <option value="1">Select Dice Coeff Threshold Match</option>                                                            
+                                                        <option value="0.6">60% and Above</option>
+                                                        <option value="0.65">65% and Above</option>
+                                                        <option value="0.7">70% and Above</option>
+                                                        <option value="0.75">75% and Above</option>
+                                                        <option value="0.8">80% and Above</option>
+                                                        <option value="0.85">85% and Above</option>
+                                                        <option value="0.9">90% and Above</option>
+                                                        <option value="0.95">95% and Above</option>
+                                                    </select>-->
+                                                    <div class="rowpageDd"><span id="rowPageLabel">Rows/page:</span><select id="verifypageCountId"></select></div>                                                
+                                                    <input name="name" type="text" placeholder="Filter Table By Use Case,Test Case Name & Step Description" style="width:370px!important;">
+                                                    </div>                                                  
+                                                    
+                                                </div>                                                 
+                                            
+                                                    <!-- <button name="hide-col" class="col-hide"><span class="hide-rating"><i class="fa fa-eye-slash"></i> Hide Rating Column</span><span class="show-rating"><i class="fa fa-eye"></i> Show Rating Column</span></button>
+                                            
+                                                    <button name="undo"><i class="fa fa-undo"></i> Undo Edit</button>
+                                            
+                                                    <button name="add-row"><i class="fa fa-plus"></i> Add Row</button>-->
+                                                </div>
+                                            
+                                    </div>                         
+                                    <div id="fieldMappingTable">
+                                        
+                                    </div>
+                                    <div id="footer-fieldMapping">
+                                        <input id="applydiagnoseButton" type="button" value="Diagnose" class="global-btn navybluecolor-btn" style="display: none;margin: auto;">
+                                    </div>
+                                    
+                                
+                                </div>  
+                                                    
+                            </div>
+                            
+                            <div class="tab-content"  id="diagnoseTabCon">
+                                <h4>Diagnose</h4>
+                                <div class="tabcontent-text">
+                                    <p><strong>Info!</strong> <span id="diagnoseTabConInfo">Component Name column is editable in below table</span></p>
+                                </div>
+                                <div id="diagnoseSearch">
+                                    <div id="tabulator-controls" class="table-controls">
+                                            <input type="button" value="Filter Changes" id="filtertext" />
+                                            <label class="toggleswitch" id="FilterChanges" >
+                                                    <input type="checkbox">
+                                                    <span class="slider round"></span>
+                                                  </label>
+                                            <div class="totaltcCount"><span id="totaltcCountLabel">Total TC count:</span> <span class="totalCount"></span></div>
+                                            <div class="totalstepCount"><span id="totalstepCountLabel">Total step count:</span> <span class="totalCount"></span></div>
+                                            <div class="modifiedCount"><span id="modifiedCountLabel">Modified count:</span> <span class="totalCount">30</span></div>
+                                             <div class="rowpageDd"> <span id="rowpageDdLabel">Rows/page:</span><select id="pageCountId"></select></div>
+                                        <div id="tableSearch">                                                   
+                                            <input name="name" type="text" placeholder="Filter By Use Case,Test Case Name & Step Description" style="width:320px!important;">
+                                        </div>                                                 
+                                    
+                                            <!-- <button name="hide-col" class="col-hide"><span class="hide-rating"><i class="fa fa-eye-slash"></i> Hide Rating Column</span><span class="show-rating"><i class="fa fa-eye"></i> Show Rating Column</span></button>
+                                    
+                                            <button name="undo"><i class="fa fa-undo"></i> Undo Edit</button>
+                                    
+                                            <button name="add-row"><i class="fa fa-plus"></i> Add Row</button>-->
+                                        </div>
+                                    
+                                </div>                         
+                                <div id="diagnoseTable"></div>
+                            
+                                <div id="footer-diagnoseMapping" style="margin: 0px auto;text-align: center;margin-top: 20px;">
+                                    <input id="generateModelPreview" type="button" value="Generate Model Preview" class="global-btn navybluecolor-btn" style="width:200px;"></div>
+                                </div>
+                            <div class="tab-content" style="min-height:700px"  id="modelprevTabCon">
+                                <h4>Model Preview</h4>
+                                <div class="tabcontent-text">
+                                    <p><strong>Info!</strong> <span id="modelprevTabConInfo">Confirm takes you to Home page where will have option to update the model.</span></p>
+                                </div>  
+                                <div id="buildModel" style="float: left; height:600px; ">
+                                        <div id="daigr1" class="chart-container"></div> 
+                                       <div style="float: left;">
+                                           <div>
+                                               <label id="label1" style="position:relative;"> </label>
+                                           </div>
+
+                                           <div class="RightContaineronpaper" style="width:240px;">
+                                                <div class="matricsAccordion" style="display:none;">
+                                                    <div class="Right-Cont-First-Header">                
+                                                            <span id="re_model_metrics_label">Model Metrics</span>                                   
+                                                    </div>
+                                                    <div class="right-Cont-first-Container">
+                                                            <table id="metricstable" class="matricsAccordion revmatrics">
+                                                                    <tr><td><span class="horizontalline"></span><span id="re_model_metrics_total">Total Tc's Imported:</span><span id="modelscenarioId"></span></td></tr>
+                                                                    <tr><td><span class="horizontalline"></span><span id="re_model_metrics_nodes">Nodes generated:</span><span id="modelNodes"></span></td></tr>
+                                                                    <tr><td><span class="horizontalline"></span><span id="re_model_metrics_optimized">Optimized TC's:</span><span id="opttestcase"></span></td></tr>
+                                                                    <tr><td><span class="horizontalline"></span><span id="re_model_metrics_optperc"></span>Optimized %:</span><span id="optage"></span></td></tr>
+                                                                </table>
+                                                    </div>  
+                                                </div>     
+                                                <div id="RevengnavContainer" class="navigator-container">
+                                                    </div>
+                                            </div>  
+
+
+
+                                          
+                                       </div>
+                                   </div>         
+                                   <div id="footer-Model Preview"  style="text-align:center"><input id="modelPreviewConfirm" type="button" value="Confirm" class="global-btn navybluecolor-btn" style="width:200px;margin-top:20px;"></div>
+                                
+                           
+                            </div>
+            
+                        </div>
+                    </div>
+                   
+        </div>
+        <script type="text/javascript"  src="../app/app.js" ></script>
+        <script type="text/javascript" src="../app/validation.js" ></script>
+        <script type="text/javascript" src="../js/home.js"></script>
+        <script type="text/javascript" src="../js/scenarioFunctions.js"></script>         
+        <script type="text/javascript" src="../jquery/tabulator/js/tabulator.min.js"></script>
+        <script src="../package/lodash/index.js"></script>
+        <script src="../package/backbone/backbone.js"></script>
+        <script src="../package/graphlib/dist/graphlib.core.js"></script>
+        <script src="../package/dagre/dist/dagre.core.js"></script>
+        <script src="../build/rappid.min.js"></script>
+  
+    <!--    <script src="../js/config/halo.js"></script>
+        <script src="../js/config/inspector.js"></script> -->
+        
+        <script src="../js/config/selection.js"></script>
+        <script>
+            var fileref=document.createElement('script');
+            fileref.setAttribute("type","text/javascript");
+            fileref.setAttribute("src", "../js/config/inspector_"+locale_global+".js");
+            document.getElementsByTagName("body")[0].appendChild(fileref)
+            fileref=document.createElement('script');
+            fileref.setAttribute("type","text/javascript");
+            fileref.setAttribute("src", "../js/config/halo_"+locale_global+".js");
+            document.getElementsByTagName("body")[0].appendChild(fileref)
+        </script>       
+        <script src="../js/config/stencil.js"></script>
+        <script src="../js/config/toolbar.js"></script>
+        <script src="../js/config/sample-graphs.js"></script>
+        <script src="../js/views/main.js"></script>
+        <script src="../js/views/theme-picker.js"></script>
+        <script src="../js/models/joint.shapes.app.js"></script>
+<script>
+ session.userDetails = JSON.parse(localStorage.getItem("session")); 
+ var isAdmin=false;
+$(document).ready(function(){ 
+    loadI18Ndata('REVENG');
+    $("#homeId").on('click', createHome);
+    $("#importselectid").on("change", function(){   
+        var test =$("#importselectid").val();
+    if($("#importselectid").val() != ""){      
+        $("#importRevEngButton").removeAttr("disabled");
+    }
+});
+    $(".tabulator-paginator .tabulator-page").on("click",function(){
+    $('#diagnoseTable').animate({
+        scrollTop: $("#diagnoseTable").offset().top-200},
+        'slow');
+    });   
+    //joint.setTheme('material');
+
+    var diagnoseMap= {};
+    var hideColumns=[];
+    var tcCount=0;
+    var tcData=[];
+    $(document).on("click", ".accept_icon", function(){
+        var row = $("#diagnoseTable").tabulator("getRow", $(this)[0].id); //return row compoenent with index of 1
+        diagnoseMap[$(this)[0].id]= "#26E86F";
+        row.getCells().forEach(function (cell) {
+            cell.getElement().css({"background-color":"#26E86F"});
+            if(cell.cell.column.definition.field =='DCNum'){
+                cell.getElement().css({"background-color":"#26E86F","pointer-events": "none", "opacity": "0.7"});
+            }
+        });
+    });   
+    $(document).on("click", ".reject_icon", function(){     
+        var row = $("#diagnoseTable").tabulator("getRow", $(this)[0].id); //return row compoenent with index of 1
+        diagnoseMap[$(this)[0].id]= "#CE4142"; 
+        var stepDesc='';
+        row.getCells().forEach(function (cell) {
+            cell.getElement().css({"background-color":"#CE4142"});
+            if(cell.cell.column.definition.field =='StepDesc'){
+                stepDesc=cell.getValue();
+            }else if(cell.cell.column.definition.field =='DCNum'){
+                cell.getElement().css({"background-color":"#CE4142","pointer-events": "none", "opacity": "0.7"});
+            }
+        });
+        row.update({"ComponentName":stepDesc});
+    });     
+    var fileContents;
+    var fileType='';
+    var fileName='';
+    var headerRowNum=1;
+    var versionId='';
+    var mappedColumns=[];
+    var templateColumns=[];
+    var sheetName='';
+    var diagramData={};
+    $('#importRevEngFileInput').val('');
+    $('#importselectid').children('option:not(:first)').remove();
+    printUserName(session.userDetails.name);
+    if(session.userDetails.roleName==='Admin' || session.userDetails.roleName==='Super Admin'){
+        isAdmin=true;           
+    }      
+    if(!isAdmin){
+        $("#adminId").remove();
+        $("#adminGuideId").remove();
+    }
+    // Add events    
+   $('#importRevEngFileInput').on('change', prepareUpload);
+  // Grab the files and set them to our variable
+    function prepareUpload(event) {
+        var file = event.target.files[0];
+        fileName=file.name;
+        if(!fileName.endsWith('.xls') && !fileName.endsWith('.xlsx')) {
+            dailogmsg("Wrong file type: " + file.type);
+            $('#importRevEngFileInput').val('');
+            headerRowNum=1;
+            return false;
+        }
+        fileContents = '';
+          fileType = '';
+        var readFile = new FileReader();
+        readFile.onload = function (e) {
+            fileContents = e.target.result;
+           $('.tab-content').addClass('overlay_rev'); 
+           $("#modal-bg").addClass('bgopacity');
+            setTimeout(function(){
+                displayWorksheet(fileContents);
+            },1000); 
+        };    
+        fileType='excel';
+        readFile.readAsBinaryString(file);        
+    }
+
+    function displayWorksheet(fileContents){
+        $('#importselectid').children('option:not(:first)').remove();
+        var data = {fileAdd: "RSN",fileData: fileContents};  
+        sendAJAX(data, app_server_url, function (response) {
+            $.each(response.data, function (i, item) {
+                $('#importselectid').append($('<option>', {
+                    value: item,
+                    text: item
+                }));          
+            });
+            if(response.data.length>0){
+                $("#importselectid").removeClass('icon-btn-disable');
+                $("#headerRowNum").removeClass('icon-btn-disable');
+               // $("#importRevEngButton").removeClass('icon-btn-disable');
+                $('.tab-content').removeClass('overlay_rev'); 
+                $("#modal-bg").removeClass('bgopacity');
+            }  
+        });  
+    }
+$("#importselectid").on("change",function(){
+        if(this.value==''){
+            $("#headerRowNum").addClass('icon-btn-disable');
+            $("#importRevEngButton").addClass('icon-btn-disable');
+        }else{
+            $("#headerRowNum").removeClass('icon-btn-disable');
+            $("#importRevEngButton").removeClass('icon-btn-disable');
+        }        
+    });
+
+    $("#importRevEngButton").click(function(event){
+        event.stopImmediatePropagation();
+        if(fileContents!= undefined && fileContents!=''){
+            headerRowNum=$('#headerRowNum').val();
+            var ulList = $("#mappedFields ul");
+            ulList.find('li').each(function (i, el) {
+                $(this).html('');
+            });
+            $('#v-nav>ul>li').eq(0).css("pointer-events", "auto");
+            $('.tab-content').addClass('overlay_rev');  
+            $("#modal-bg").addClass('bgopacity');       
+           window.setTimeout(function(){uploadFiles()} ,100);
+        }else{
+            dailogmsg('Please select Test case file');
+        }
+    });
+
+
+    function uploadFiles(){  
+        if(fileContents != undefined && fileContents != null &&  fileContents.length >0) {
+            versionId = getURLParameter('vId');
+            var row="";
+            sheetName=$('#importselectid').val();
+            var data = {fileAdd: "REITF", versionId:versionId, headerRowNum:headerRowNum, fileData: fileContents, fileType: fileType, fileName: fileName, sheet:sheetName};
+            $("#excelColumns ul").html('');
+            sendAJAX(data, app_server_url, function (response) {
+                    $.each(response.data, function( key, value ) {
+                    row = row +'<li title="Drag the field and Map it into Map field">'+value+'</li>';
+                });
+                $('.tab-content').removeClass('overlay_rev'); 
+                $("#modal-bg").removeClass('bgopacity');             
+                $("#excelColumns ul").append(row);
+                $("#excelColumns").show();
+                $("#excelColumns li").draggable({
+                    helper: "clone",
+                    start: function(event, ui) {
+                       // c.tr = this;
+                      //  c.helper = ui.helper;
+                    }
+                });
+
+                $("#mappedFields ul li").droppable({
+                    drop: function(event, liItem) {                        
+                        var draggedVal = liItem.draggable.text();
+                        var isValExists=false;
+                        var ulList = $("#mappedFields ul");
+                        ulList.find('li').each(function (i, el) {
+                            var $lis = $(this);
+                            var liVal = $lis.text();                        
+                            if(liVal==draggedVal){
+                                isValExists=true;
+                            }                           
+                        });
+                        if(isValExists){
+                            dailogmsg(draggedVal+ ' is already mapped');
+                        }else{   
+                              $(this).html('<div id="mySecondDiv">' + draggedVal + '<span class="removemapfield"><i class="fa fa-minus-circle" title="Remove"></i></span></div>');
+                        }
+                        $(".removemapfield").click(function(){                               
+                                        $(this).parent().remove();                                                           
+                        });
+                     //  $(c.tr).remove();
+                     //$(c.helper).remove();
+                    }
+                });
+                $('#v-nav>ul>li').eq(1).css("pointer-events", "auto");
+                $('#v-nav>ul>li').eq(1).click();
+            });
+           
+        }
+    }
+
+    function getFieldName(colName){
+        var fieldName='';
+        switch(colName) {
+            case 'Use Case / User Story':
+                fieldName='UseCase'; break;
+            case 'Test Case ID':
+                fieldName='TestCaseId';break;
+            case 'Test Case Name':
+                fieldName='TestCaseName';break;
+            case 'Step ID':
+                fieldName='StepId';break;
+            case 'Step Description':
+                fieldName='StepDesc';break;
+            case 'Expected Result':
+                fieldName='ExpectedResult';break;
+            default:
+                fieldName='';break;
+        }
+        return fieldName;
+    }
+
+    $("#applyFieldMappingButton").click(function(event){  
+        //$("#verifyMap").css("height","200px");        
+        var TC_Name = $("#mappedFields ul li:nth-child(3)").text();
+        var Step_Description = $("#mappedFields ul li:nth-child(5)").text();
+        $('#verifypageCountId').children('option').remove(); 
+        hideColumns=[];      
+        if(TC_Name == "" || Step_Description == ""){  
+            $('html,body').animate({
+        scrollTop: $("#mainContainer").offset().top},
+        'slow');         
+            $("#mapvalidation").show();
+            return false;
+        }else{  
+            $("#mapvalidation").hide();       
+      $('.tab-content').addClass('overlay_rev'); 
+       $("#modal-bg").addClass('bgopacity');
+        var list = $("#mappedFields  ul");
+        list.find('li').each(function (i, item) {
+            var liDiv = $(this).find('div');
+            if(liDiv != undefined){
+                // mappedColumns.push(liDiv.contents().get(0));
+                var text=liDiv
+                    .clone()    //clone the element
+                    .children() //select all the children
+                    .remove()   //remove all the children
+                    .end()  //again go back to selected element
+                    .text();
+                mappedColumns.push(text);
+            }else{
+                mappedColumns.push("");
+            }
+        });
+        list = $("#propsedColumns ul");
+        list.find('li').each(function (i, item) {
+            templateColumns.push($(this).text());
+        });
+        var data = {fileAdd: "REFM", versionId:versionId, mc:mappedColumns, tc: templateColumns, headerRowNum:headerRowNum, fileName: fileName, sheet:sheetName};
+        tcCount=0;
+        tcData=[];       
+        sendAJAX(data, app_server_url, function (response) {
+            var jsontabledata=response.data;
+            var tabledataval=[];
+            var tcStartRow=0;
+            var idCount=0;
+            for(var i=0;i<jsontabledata.length;i++)
+            {
+                var jsonsubvalue=jsontabledata[i];
+                if(jsonsubvalue!=null)
+                {
+                    var jsonsubvalueStr=JSON.stringify(jsonsubvalue);
+                    if(jsonsubvalueStr!='{}'){
+                        if(mappedColumns.length>0){
+                            var column1Data='', column2Data='', column3Data='', column4Data='',column5Data='',column6Data='';
+                            if(mappedColumns[0]!='' && jsonsubvalue[mappedColumns[0]]!=undefined){
+                                column1Data=jsonsubvalue[mappedColumns[0]];
+                            }
+                            if(mappedColumns[1]!='' && jsonsubvalue[mappedColumns[1]]!=undefined){
+                                column2Data=jsonsubvalue[mappedColumns[1]];
+                            }
+                            if(mappedColumns[2]!='' && (jsonsubvalue[mappedColumns[2]]!=undefined && jsonsubvalue[mappedColumns[2]]!='')){
+                                column3Data=jsonsubvalue[mappedColumns[2]];
+                                if(!isElementExists(tcData,column3Data)){
+                                    tcCount+=1;
+                                    tcData.push(column3Data);
+                                    tcStartRow=idCount+1;
+                                }else{
+                                    column3Data='';
+                                }
+                            }
+                            if(mappedColumns[3]!='' && jsonsubvalue[mappedColumns[3]]!=undefined){
+                                column4Data=jsonsubvalue[mappedColumns[3]];
+                            }
+                            if(mappedColumns[4]!='' && jsonsubvalue[mappedColumns[4]]!=undefined){
+                                column5Data=jsonsubvalue[mappedColumns[4]];
+                            }
+                            if(mappedColumns[5]!='' && jsonsubvalue[mappedColumns[5]]!=undefined){
+                                column6Data=jsonsubvalue[mappedColumns[5]];
+                            }                         
+                            if(column1Data!='' || column2Data!='' || column3Data!='' || column4Data!='' || column5Data!='' || column6Data!=''){
+                                idCount++;
+                                var maptablejson ={
+                                    UseCase:column1Data,
+                                    TestCaseId:column2Data,
+                                    TestCaseName:column3Data,
+                                    StepId:column4Data,
+                                    StepDesc:column5Data,
+                                    ExpectedResult:column6Data,
+                                    StartRowTC:tcStartRow,
+                                    id:idCount
+                                }
+                                //var maptablejson ={Function:'scenario11',ScenarioId:'scenario11',ScenarioName:'scenario11',TestCaseId:'scenario11',TestCaseName:'scenario11',StepId:'scenario11',StepDesc:'scenario11',ExpectedResult:'scenario11'}
+
+                                tabledataval.push(maptablejson);
+                            }
+                        }
+                    }           
+                } 
+            }           
+            $("#fieldMappingTable").tabulator("setData", tabledataval);
+            var filedata= $("#fieldMappingTable").tabulator("getData");   
+           for(var count=0;count<=filedata.length-1;){
+                count = count+10;
+                if(count>100 || count>filedata.length)break;
+                $("#verifypageCountId").append($('<option>',{
+                        value: count,
+                        text: count
+                }));
+           }             
+            window.setTimeout(function(){                
+                $("#fieldMappingTable").tabulator("redraw");
+                hideColumns=[];
+                for(var index=0;index<mappedColumns.length;index++){
+                    var field=getFieldName(templateColumns[index]);                    
+                    if(field!="" && mappedColumns[index]==''){
+                        $("#fieldMappingTable").tabulator("hideColumn",field);
+                        hideColumns.push(field);
+                    }else{
+                        $("#fieldMappingTable").tabulator("showColumn",field);
+                    }
+                }      
+               
+                mappedColumns=[];  
+            } ,100);       
+            $('#v-nav>ul>li').eq(2).css("pointer-events", "auto");
+            $('#v-nav>ul>li').eq(2).click();
+            $("#applydiagnoseButton").css("display","block");
+            $('.tab-content').removeClass('overlay_rev');
+            $("#modal-bg").removeClass('bgopacity');              
+            //fieldMappingData= $("#resultTable").tabulator("getData");
+            //console.log("------>"+JSON.stringify(data));
+        });
+    }
+    setTimeout(function(){  
+        $("#fieldMappingTable").tabulator("redraw");      
+    },5000);
+    });
+  
+  
+    var diescoefvalue='';
+    var diagnoseTableData=[];
+    $("#applydiagnoseButton").click(function(event){ 
+      var coeffval= getDCValue($("#dies_coeff_id").val());  
+      diagnoseTableData=[];
+      if(coeffval>=0.60 && coeffval<=1){         
+        $("#rangevalidation").hide();
+        $('.tab-content').addClass('overlay_rev'); 
+        $("#modal-bg").addClass('bgopacity');
+        $('#pageCountId').children('option').remove(); 
+        diescoefvalue= coeffval; 
+        var fieldMappingData= $("#fieldMappingTable").tabulator("getData");
+        fieldMappingDataStr=JSON.stringify(fieldMappingData);
+        var data = {fileAdd: "RED", versionId:versionId, tableData: fieldMappingDataStr,dcval:diescoefvalue};
+        sendAJAX(data, app_server_url, function (response) {
+           // $("#diagnoseTable").tabulator(diagnoseTableConfig);
+            diagnoseMap={};
+            diagnoseTableData=response.data.tableData;
+            $("#diagnoseTable").tabulator("setData",diagnoseTableData); 
+            var datalen= $("#diagnoseTable").tabulator("getData");    
+            for(var count=0;count<=datalen.length-1;){
+                    count=count+10;
+                    if(count>100 || count>datalen.length) break;
+                    $("#pageCountId").append($('<option>', {
+                    value: count,
+                    text: count
+                    }));
+                }          
+            window.setTimeout(function(){
+                $("#diagnoseTable").tabulator("redraw");
+                $("#diagnoseTable").tabulator("showColumn","UseCase");
+                $("#diagnoseTable").tabulator("showColumn","TestCaseId");
+                $("#diagnoseTable").tabulator("showColumn","StepId");
+                $("#diagnoseTable").tabulator("showColumn","ExpectedResult");
+                for(var index=0;index<hideColumns.length;index++){
+                    $("#diagnoseTable").tabulator("hideColumn",hideColumns[index]);
+                }        
+            } ,100);
+            $(".totaltcCount span.totalCount").text(tcCount);
+            $(".totalstepCount span.totalCount").text(response.data.tableData.length);
+            
+            $('#v-nav>ul>li').eq(3).css("pointer-events", "auto");
+            $('#v-nav>ul>li').eq(3).click();
+            $('.tab-content').removeClass('overlay_rev');
+            $("#modal-bg").removeClass('bgopacity');
+            $("#verifyFieldMapping").css("margin-top","45px"); 
+            $(".modifiedCount span.totalCount").text(response.data.modifiedCount);
+        });
+      }else{
+        $('html,body').animate({
+        scrollTop: $("#mainContainer").offset().top},
+        'slow');         
+        $("#rangevalidation").show();
+        $("#verifyFieldMapping").css("margin-top","80px");
+            return false;
+       
+        //dailogmsg("Dice Coff Match should be in the range of 0.60 to 1.00");
+        $('.tab-content').removeClass('overlay_rev'); 
+        $("#modal-bg").removeClass('bgopacity');
+        //iscoeff=false;
+    }
+    setTimeout(function(){  
+        $("#diagnoseTable").tabulator("redraw");      
+    },4000);
+    });
+
+    function getDCValue(input){
+         if(input.indexOf(".")==0){
+            input="0"+input;
+         }
+         return parseFloat(input);
+    }
+
+    $("#generateModelPreview").click(function(event){  
+        $('.tab-content').addClass('overlay_rev');
+        $("#modal-bg").addClass('bgopacity');       
+        $(".matricsAccordion").css("display","block");     
+        var diagnoseData= $("#diagnoseTable").tabulator("getData");
+        diagnoseDataStr=JSON.stringify(diagnoseData);
+        buildModel.graph.fromJSON({"cells":[]});
+        $('#v-nav>ul>li').eq(4).css("pointer-events", "auto");
+        $('#v-nav>ul>li').eq(4).click();
+       var data = {fileAdd: "REMP", versionId:versionId, tableData: diagnoseDataStr};
+       var responseData;
+        sendAJAX(data, app_server_url, function (response) {
+           // $("#diagnoseTable").tabulator(diagnoseTableConfig);
+              responseData=response.data;
+              buildModel.graph.fromJSON(responseData.diagramData);
+              buildModel.layoutDirectedGraph();
+                 generateScenarios('reveng', buildModel.graph);
+        
+               setTimeout(function(){ 
+                    $("#modelscenarioId").text(responseData.numScenarios);
+                    $("#modelNodes").text(responseData.numNodes);
+                    $("#opttestcase").text(scnerios.length);
+                    if(scnerios.length!=0){
+                        var oppercent=((responseData.numScenarios-scnerios.length)/responseData.numScenarios)*100;
+                        $("#optage").text(oppercent.toFixed(2));
+                    }else{
+                        $("#optage").text(0);
+                    }
+                },250);         
+                $('.tab-content').removeClass('overlay_rev');
+                $("#modal-bg").removeClass('bgopacity');
+             // graph=buildModel.graph;
+             // layout();
+        });
+    });
+
+     var buildModel = new App.MainView({el: '#buildModel'});
+     buildModel.graph.fromJSON({"cells":[]});
+
+    $("#modelPreviewConfirm").click(function(event){
+        var diagramData = JSON.stringify(buildModel.graph);
+        var data = {fileAdd: "RESMV", versionId:versionId, diagData:diagramData};
+        sendAJAX(data, app_server_url, function (response) {
+            window.location.href = app_server_url+"/home.html?fm=RE";
+        });
+    });    
+
+var compTypeEditor = function(cell, onRendered, success, cancel){
+
+		var editor = $("<select><option value='Start'>Start</option><option value='Activity'>Activity</option><option value='Decision'>Decision</option><option value='Join'>Join</option><option value='Fork'>Fork</option><option value='SendSignal'>SendSignal</option><option value='AcceptEvent'>AcceptEvent</option><option value='Exception'>Exception</option><option value='End'>End</option></select>");
+		editor.css({
+			"padding":"5px",
+			"width":"100%",
+			"box-sizing":"border-box",
+		});
+
+        //Set value of editor to the current value of the cell
+        editor.val(cell.getValue());
+
+        //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+        onRendered(function(){
+        	editor.focus();
+        	editor.css("height","100%");
+        });
+
+        //when the value has been set, trigger the cell to update
+        editor.on("change blur", function(e){
+        	success(editor.val());
+        });
+
+        //return the editor element
+        return editor;
+    };
+    $(window).resize(function(){
+     $("#diagnoseTable").tabulator("redraw",true);
+     $("#fieldMappingTable").tabulator("redraw",true);
+    });
+    $("#fieldMappingTable").tabulator({
+            fitColumns:true,
+            tooltips:true,
+            addRowPos:"top",
+            history:true,
+            pagination:"local",
+            paginationSize:10,
+            movableColumns:true,
+            responsiveLayout:true,
+            columns:[
+            {title:"Use Case / User Story", field:"UseCase",editor:false,headerSort:false}, 
+            {title:"Test Case ID", field:"TestCaseId",editor:false,headerSort:false},
+            {title:"Test Case Name", field:"TestCaseName",editor:false,headerSort:false},
+            {title:"Step ID", field:"StepId",editor:false,headerSort:false},
+            {title:"Step Description", field:"StepDesc",editor:"input",headerSort:false},
+            {title:"Expected Result", field:"ExpectedResult",editor:false,headerSort:false}
+            ],
+    });
+    //$("#fieldMappingTable").tabulator("setData", [{Function:'-Function-',ScenarioId:'-Scenario Id-',ScenarioName:'-Scenario Name-',TestCaseId:'-TestCase Id-',TestCaseName:'-TestCase Name-',StepId:'-Step Id-',StepDesc:'-Step Description-',ExpectedResult:'-Expected Result-'}]);      
+
+    $("#diagnoseTable").tabulator({
+        fitColumns:true,
+        tooltips:true,
+        addRowPos:"top",
+        history:true,
+        pagination:"local",
+        paginationSize:10,
+        movableColumns:true,
+        responsiveLayout:true,
+        columns:[
+        {title:"Use Case / User Story", field:"UseCase",editor:false,headerSort:false}, 
+        {title:"Test Case ID", field:"TestCaseId",editor:false,headerSort:false},
+        {title:"Test Case Name", field:"TestCaseName",editor:false,headerSort:false},
+        {title:"Component Name", field:"ComponentName",editor:"false",headerSort:false,formatter:function(cell,formatterParams){
+            cell.getElement().addClass('ComponentField');
+            return cell.getValue();
+        }    
+        },
+        {title:"Confidence", field:"DCNum",editor:false,headerSort:false, formatter:function(cell,formatterParams){
+                var cellval = cell.getValue();
+                var color='redColor';                
+                var stepDescVal='';
+                var compNameVal='';            
+                if(cellval >= 0.8){
+                    color='greenColor';
+                }else if(cellval >= 0.6 && cellval <= 0.8){
+                    color='AmberColor';
+                }                
+                var formattedText="<span class='"+color+"'>"+cellval;
+                if(cellval>=diescoefvalue && cellval<1) {
+                    formattedText=formattedText+"<i id='"+cell.cell.row.data.id+"' class='fa fa-check-circle accept_icon' title='Accept' aria-hidden='true'></i><i id='"+cell.cell.row.data.id+"' class='fa fa-times-circle reject_icon' title='Reject' aria-hidden='true'></i>";
+                } 
+                formattedText=formattedText+"</span>";
+                return formattedText; 
+            }
+        },
+        {title:"Step ID", field:"StepId",editor:false,headerSort:false},
+        {title:"Step Description", field:"StepDesc",editor:false,headerSort:false,formatter:function(cell,formatterParams){
+            cell.getElement().addClass('stepDescriptionField');
+            return cell.getValue();
+        }    },
+        {title:"Expected Result", field:"ExpectedResult",editor:false,headerSort:false}
+        ],
+        rowFormatter:function(row){    
+            var data = row.getData();            
+            if(data.ComponentName != data.StepDesc || diagnoseMap[data.id]!=undefined){
+                var bgColor="#FFE4B5";
+                if(diagnoseMap[data.id]!=undefined){
+                    bgColor=diagnoseMap[data.id];
+                    row.getCells().forEach(function (cell) {
+                        if(cell.cell.column.definition.field =='DCNum'){
+                            cell.getElement().css({"background-color":bgColor,"pointer-events": "none", "opacity": "0.7"});
+                        }else{
+                            cell.getElement().css({"background-color":bgColor});
+                        }
+                    });
+                }else{
+                    row.getCells().forEach(function (cell) {
+                    if(cell.cell.column.definition.field =='ComponentName' || cell.cell.column.definition.field =='StepDesc'){
+                        cell.getElement().css({"background-color":bgColor});
+                    }
+                });
+                }  
+            }
+        },        
+    });
+
+    $("#tabulator-controls input[name=name]").on("keyup", function(){
+            $("#fieldMappingTable").tabulator("setFilter", customFilter, {input:$(this).val()}); 
+            $("#diagnoseTable").tabulator("setFilter", customFilter, {input:$(this).val()}); 
+    });
+
+    $("#FilterChanges").click(function(){   
+        
+        if($('#FilterChanges input[type="checkbox"]').is(':checked')){
+            $("#diagnoseTable").tabulator("setFilter", confidenceFilter, {input:'Y'});            
+        }else{
+            $("#diagnoseTable").tabulator("setFilter", confidenceFilter, {input:'N'});          
+        }
+           
+    });
+    
+    $("#pageCountId").on("change",function(){
+        $("#diagnoseTable").tabulator("setPageSize", $('select#pageCountId option:selected').val());
+    });
+
+    $("#verifypageCountId").on("change",function(){
+        $("#fieldMappingTable").tabulator("setPageSize", $('select#verifypageCountId option:selected').val());
+    });
+   
+    function customFilter(data, filterParams){
+       return data.UseCase.toLowerCase().indexOf(filterParams.input.toLowerCase()) !=-1 ||  data.TestCaseName.toLowerCase().indexOf(filterParams.input.toLowerCase()) !=-1 || data.StepDesc.toLowerCase().indexOf(filterParams.input.toLowerCase()) !=-1 ; //must return a boolean, true if it passes the filter.
+    }
+
+    function confidenceFilter(data, filterParams){
+        if(filterParams.input=='Y'){
+            if(data.ComponentName != data.StepDesc || diagnoseMap[data.id]!=undefined){
+                if(data.StartRowTC!=data.id){
+                    var rowData=diagnoseTableData[(data.StartRowTC-1)];
+                    data['UseCase']=rowData.UseCase;
+                    data['TestCaseId']=rowData.TestCaseId;
+                    data['TestCaseName']=rowData.TestCaseName;
+                }
+                return true;
+            }
+            return false;
+        }else{
+            if(data.StartRowTC!=data.id){
+                var rowData=diagnoseTableData[(data.id-1)];
+                data['UseCase']=rowData.UseCase;
+                data['TestCaseId']=rowData.TestCaseId;
+                data['TestCaseName']=rowData.TestCaseName;
+            }
+            return true;
+        }
+    }
+
+    //this will hold reference to the tr we have dragged and its helper
+    var c = {};
+
+    var items = $('#v-nav>ul>li').each(function () {
+        $(this).click(function () {
+            //remove previous class and add it to clicked tab
+            items.removeClass('current');
+            $(this).addClass('current');
+
+            //hide all content divs and show current one
+            //$('#v-nav>div.tab-content').hide().eq(items.index($(this))).show();
+
+            //$('#v-nav>div.tab-content').hide().eq(items.index($(this))).fadeIn(100);    
+            $('#v-nav>div.tab-content').hide().eq(items.index($(this))).show();
+        });
+        $('#v-nav>div.tab-content').hide().eq(0).show();
+    });
+});
+
+
+function getURLParameter(sParam)
+{
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++)
+    {
+        var sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] == sParam)
+        {
+            return sParameterName[1];
+        }
+    }
+}
+
+function isNumberKey(evt,id){
+	try{
+        var charCode = (evt.which) ? evt.which : event.keyCode;  
+        if(charCode==46){
+            var txt=document.getElementById(id).value;
+            if(!(txt.indexOf(".") > -1)){	
+                return true;
+            }
+        }
+        if (charCode > 31 && (charCode < 48 || charCode > 57) )
+            return false;
+        return true;
+	}catch(w){
+	}
+}
+</script>
+<div id="popupdata"></div>
+</body>
+</html>

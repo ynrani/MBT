@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Rappid Demo Application</title>
+    <link rel="stylesheet" type="text/css" href="build/rappid.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/theme-picker.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+<body>
+
+    <div id="app">
+	
+	<div style="margin-left: 240px;position: relative;left: 250px;"><span style="font-size: 20px;font-weight: bold;padding-top:5px;padding-bottom: 5px;display:block;">iAuthor Ver 2.0  </span></div>
+        <div class="app-header">
+              <div class="app-title" style="background-color: white;">
+                  <h1 style="height:86px">
+					  <img src="cg_logo.png" class="brandLogoImgIgate" style="margin-top: -40px;margin-left: -18px;height: 50px;position: relative;"></h1>
+				  
+              </div>
+			  
+			  
+              <div class="toolbar-container" style="height: 60%;">
+			 
+			  </div>
+        </div>
+        <div class="app-body">
+              <div class="stencil-container" style="top: -30px;"></div>
+             <div class="paper-container" style="top: -30px;">
+				<button class="joint-theme-modern joint-widget" id="btn-png-save" data-tooltip="Save to local drive" data-tooltip-position="top" data-tooltip-position-selector=".toolbar-container" data-type="button" data-name="png-save">Save</button>
+				<button class="joint-theme-modern joint-widget" id="btn-png-load" onclick="document.getElementById('fileinput').click(); return false;" data-tooltip="Load from local drive" data-tooltip-position="top" data-tooltip-position-selector=".toolbar-container" data-type="file" data-name="png-load">Load</button>		
+				<input type="file" id="fileinput" onchange='openFile(event)' style="display:none">
+				
+				<button class="joint-theme-modern joint-widget scenario" id="btn-png-scenario1" data-tooltip="Generate Scenario" data-tooltip-position="top" data-tooltip-position-selector=".toolbar-container" data-type="button" data-name="0" data-color="#dcd7d7" style="float:right;border: 2px solid red;">Generate Scenarios</button>
+				
+				<select class="joint-theme-modern joint-widget" id="btn-scenario" name="btn-scenario"  style="float:right;height: 30px;"  data-tooltip-position="top" data-tooltip-position-selector=".toolbar-container" data-type="select" data-name="0"> <option>Please Generate Scenario</option>    </select>
+			  </div>
+			  
+              <div class="inspector-container"></div>
+              <div class="navigator-container"></div>
+			  
+        </div>
+    </div>
+
+     <!-- Rappid/JointJS dependencies: -->
+    <script src="package/jquery/dist/jquery.js"></script>
+    <script src="package/lodash/index.js"></script>
+    <script src="package/backbone/backbone.js"></script>
+    <script src="package/graphlib/dist/graphlib.core.js"></script>
+    <script src="package/dagre/dist/dagre.core.js"></script>
+
+    <script src="build/rappid.min.js"></script>
+
+    <!--[if IE 9]>
+        <script>
+          // `-ms-user-select: none` doesn't work in IE9
+          document.onselectstart = function() { return false; };
+        </script>
+    <![endif]-->
+
+    <!-- Application files:  -->
+    <script src="js/config/halo.js"></script>
+    <script src="js/config/selection.js"></script>
+    <script src="js/config/inspector.js"></script>
+    <script src="js/config/stencil.js"></script>
+    <script src="js/config/toolbar.js"></script>
+    <script src="js/config/sample-graphs.js"></script>
+    <script src="js/views/main.js"></script>
+    <script src="js/views/theme-picker.js"></script>
+    <script src="js/models/joint.shapes.app.js"></script>
+	<script src="js/models/FileSaver.js" ></script>
+    <script>
+
+	console.log('start');
+
+	
+	var flow = new Array();
+	var scnerios = new Array();
+	var existingflow = new Array();
+	var balance =new Array();
+	var baseFlow = {};
+	var mm ;	
+	var previousScenario;
+	
+        joint.setTheme('modern');
+        app = new App.MainView({ el: '#app' });
+        themePicker = new App.ThemePicker({ mainView: app });
+        themePicker.render().$el.appendTo(document.body);
+        app.graph.fromJSON(JSON.parse(App.config.sampleGraphs.emergencyProcedure));
+		
+		 app.graph.on('all', function(eventName, cell) {
+       
+		//console.log(cell);
+		
+		});
+		
+		//element.on('change:position', function() { alert('element moved') })
+	
+	 $("#btn-png-save").click(function(){
+	 //joint.storage.Local.insert('mygraphs', app.graph);
+	 var json = JSON.stringify(app.graph);
+	 localStorage.setItem('json', json);
+       // alert("Successfully saved");
+		
+		 var text = json;
+		 var filename=prompt("Please enter file name");
+    if (filename!=null){
+      var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+		saveAs(blob, filename+".txt");
+   }
+   
+  
+  
+    }); 
+	
+	 var openFile = function(event) {
+        var input = event.target;
+
+        var reader = new FileReader();
+        reader.onload = function(){
+          var text = reader.result;
+         app.graph.fromJSON(JSON.parse(text));
+		// alert("Successfully loaded");
+		 $(".scenario").click();
+		// console.log(text);
+          console.log(reader.result.substring(0, 200));
+        };
+        reader.readAsText(input.files[0]);
+      };
+	  
+	  
+	
+		
+		//$("#btn-png-load").click(function(){
+	 //joint.storage.Local.insert('mygraphs', app.graph);
+	  //var input = $(document.createElement('input'));
+        //input.attr("type", "file");
+       // $('#fileinput').click(); // opening dialog
+       // return false; 
+	   //app.graph.fromJSON(JSON.parse(localStorage.getItem('json')))
+	  
+			
+		 
+				
+	   // alert("Successfully loaded");
+   // });
+	  
+	
+		$(".scenario").click(function(){
+		   
+			$(".flowScen").remove();
+			scnerios = new Array();
+			$(this).css("background-color",$(this).data('color'));
+			$(this).css("border",'');
+			
+			var count = app.graph.getConnectedLinks(app.graph.getElements()[0], { outbound: true })[0];
+			flow.push(app.graph.getElements()[0]);
+			<!-- app.graph.getElements()[0].attr({			circle: { fill: '#FF00FF' }, 	}); -->
+			checkForCycleExistence(count);
+			$('select[name=btn-scenario] > option:first-child').text('Please Select Scenarios');
+			dailogmsg('Scenarios Generated Successfully');
+			console.log('done');
+		}); 
+		
+		app.graph.on('cell:pointerclick', function(cellView) {
+		console.log('clicked');
+		cellView.highlight();
+		});
+
+	
+	 
+	
+	
+		var circles = app.graph.getElements().filter(function(el) {
+			return el instanceof joint.shapes.basic.Circle;
+		});
+	
+	var tempBaseFlow=new Array();
+	function checkForCycleExistence(count) {
+  		
+	flow.push(count);
+	var targets =  getElements(count.getTargetElement());
+	//console.log(targets.length);
+	if(targets.length > 1){
+		
+		 var elem =targets[0];
+		 console.log('list targets are ');
+		 console.log(targets);
+		 console.log(targets.shift());
+		 for(var i=0;i<targets.length;i++){
+		 balance.unshift(targets[i]);
+		 }
+		 	 
+		for(var j=0;j<flow.length;j++){
+		tempBaseFlow.push(flow[j]);
+		}
+		 checkForCycleExistence(elem);
+		 		
+	}else{
+	console.log('in else block');
+	if(targets[0] != undefined){
+	checkForCycleExistence(targets[0]);
+	}else{ 
+		 scnerios.push(flow);
+		 flow = new Array();
+		 console.log('first scnerio finished');
+		 console.log(balance.length);
+		 for(var i=0;i<tempBaseFlow.length;i++){
+		// flow.push(tempBaseFlow[i]);
+		 }
+		
+		 if(balance.length != 0 ){
+		 
+		 var sec = balance[0];
+		 
+		 var lastflow = scnerios[scnerios.length-1];
+		 var lastIndex;
+		 console.log(lastflow);
+		 for(var j=0;j<lastflow.length;j++){
+		 console.log(sec.getSourceElement().id.toString()+" > "+lastflow[j].id.toString());
+		 if(sec.getSourceElement().id.toString() == lastflow[j].id.toString()){
+		    lastIndex = j;
+			
+		 }
+		 }
+		 console.log('last index is : '+lastIndex);
+		 
+		 copyBaseElements(flow,lastflow,lastIndex);
+		 console.log('sec is ');
+		 console.log(sec);
+		 balance.shift();
+		 checkForCycleExistence(sec);
+		 
+		 }else {
+		 applyColorforFlow();
+		 }
+		}
+	}
+	
+	}
+	function copyBaseElements(flow,lastflow,lastIndex){
+	for(var i=0;i<=lastIndex;i++){
+	flow.push(lastflow[i]);
+	}
+	}
+	function getElements(link){
+	flow.push(link);
+	return app.graph.getConnectedLinks(link, { outbound: true });
+	
+	}
+	
+	
+	function applyColorforFlow(){
+	
+	for(var i=1;i<=scnerios.length; i++){
+	
+	$('select').append( '<option value="'+i+'" class=flowScen>' + 'Scenario '+ i + '</option>' );
+	}
+	
+	}
+	
+	$('#btn-scenario').change(function() {
+	clearExistingScnerios();
+	previousScenario = $(this).val()-1;
+	console.log($(this).val());
+	
+	var currentFlow = scnerios[$(this).val()-1];
+	for(var j=0;j<currentFlow.length; j++){
+	
+	currentFlow[j].attr({	
+	circle: { fill: '#FF00FF' }, 
+	});
+	
+	currentFlow[j].attr('rect/fill', {
+		type: 'linearGradient',
+		stops: [
+           { offset: '100%', color: '#FF00FF' }
+		]
+		});
+		
+	currentFlow[j].attr({
+    '.connection': { stroke: '#FF00FF' },
+    '.marker-source': { fill: '#FF00FF', d: 'M 10 0 L 0 5 L 10 10 z' },
+    '.marker-target': { fill: '#FF00FF', d: 'M 10 0 L 0 5 L 10 10 z' }
+		});
+		
+	currentFlow[j].attr({
+     polygon: { fill: '#FF00FF', 'stroke-width': 3, stroke: '#3c4260' },
+       
+    });
+	
+	}
+});
+
+function clearExistingScnerios(){
+console.log(previousScenario);
+if(previousScenario != undefined){
+
+var currentFlow = scnerios[previousScenario];
+	for(var j=0;j<currentFlow.length; j++){
+	
+	currentFlow[j].attr({	
+	circle: { fill: '#dcd7d7' }, 
+	});
+	
+	currentFlow[j].attr('rect/fill', {
+		type: 'linearGradient',
+		stops: [
+           { offset: '100%', color: '#dcd7d7' }
+		]
+		});
+		
+	currentFlow[j].attr({
+    '.connection': { stroke: '#6b6c8a' },
+    '.marker-source': { fill: '#6b6c8a', d: 'M 10 0 L 0 5 L 10 10 z' },
+    '.marker-target': { fill: '#6b6c8a', d: 'M 10 0 L 0 5 L 10 10 z' }
+		});
+		
+	currentFlow[j].attr({
+     polygon: { fill: '#6b6c8a', 'stroke-width': 3, stroke: '#3c4260' },
+       
+    });
+	
+	}
+
+}else{
+
+
+}
+}
+    </script>
+
+    <!-- Local file warning: -->
+    <div id="message-fs" style="display: none;">
+      <p>The application was open locally using the file protocol. It is recommended to access it trough a <b>Web server</b>.</p>
+      <p>Please see <a href="README.md">instructions</a>.</p>
+    </div>
+    <script>
+        (function() {
+            var fs = (document.location.protocol === 'file:');
+            var ff = (navigator.userAgent.toLowerCase().indexOf('firefox') !== -1);
+            if (fs && !ff) {
+               (new joint.ui.Dialog({
+                   width: 300,
+                   type: 'alert',
+                   title: 'Local File',
+                   content: $('#message-fs').show()
+                })).open();
+            }
+        })();
+    </script>
+
+</body>
+</html>

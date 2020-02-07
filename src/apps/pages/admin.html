@@ -1,0 +1,2879 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>iAUTHOR</title>
+    <link rel="stylesheet" href="../font-awesome-4.6.3/css/font-awesome.min.css" type="text/css" />
+    <script type="text/javascript" src="../jquery/jquery.1.7.1.min.js"></script>
+    <script type="text/javascript" src="../jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="../app/app.js"></script>
+    <script type="text/javascript" src="../jquery/mobile/jquery.mobile-1.4.3.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.messagestore.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.fallbacks.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.language.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.parser.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.emitter.js"></script>
+    <script src="../jquery/i18n/jquery.i18n.emitter.bidi.js"></script>
+    <script src="../jquery/i18n/url.min.js"></script>
+    <script type="text/javascript" src="../js/home.js"></script>
+    <link rel="stylesheet" type="text/css" href="../jquery/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="../app/admin.css">
+    <script type="text/javascript" src="../app/validation.js"></script>
+    <script type="text/javascript" src="../js/views/jquery.dialog.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/dialog.css" />
+    <link rel="stylesheet" href="../jquery/tabulator/css/tabulator.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" href="../app/app.css" type="text/css" />
+    <script type="text/javascript" src="../jquery/tabulator/js/tabulator.min.js"></script>
+
+    <style>
+        .table-controls-legend {
+            margin: 10px 0 5px 0;
+            color: #3FB449;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .table-controls {
+            margin-bottom: 10px;
+            padding: 10px 5px 0 5px;
+            background: #eee;
+            font-size: 14px;
+        }
+
+        .table-controls input,
+        .table-controls select,
+        .table-controls button,
+        .table-controls>span {
+            margin: 0 5px 10px 5px;
+        }
+
+        .table-controls input,
+        .table-controls select {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 4px 10px;
+            border: 1px solid #0070AD;
+            background: #fafafa;
+            outline: none;
+        }
+
+        .table-controls {
+            margin: 10px 0;
+            overflow: auto;
+        }
+
+        .table-controls i.fa-filter {
+            position: relative;
+            margin-left: 10px;
+            margin-right: -25px;
+            color: #3FB449;
+            z-index: 10;
+        }
+
+        .table-controls input {
+            position: relative;
+            width: calc(100% - 650px);
+            min-width: 100px;
+            margin-left: 0;
+            z-index: 1;
+        }
+
+        .table-controls button {
+            float: right;
+        }
+
+        .table-controls button[name="hide-col"] .hide-rating {
+            display: none;
+        }
+
+        .table-controls button[name="hide-col"].col-hide .show-rating {
+            display: none;
+        }
+
+        .table-controls button[name="hide-col"].col-hide .hide-rating {
+            display: inline-block;
+        }
+
+        #propsedColumns table tr td,
+        #mappedFields table tr td,
+        #excelColumns table tr td {
+            height: 50px;
+        }
+    </style>
+
+</head>
+<script>
+    session.userDetails = JSON.parse(localStorage.getItem("session"));
+    var userObjs = [];
+    var isAdmin = false;
+    var eDate, sDate, cDate = null;
+    var openTestdupExist = false;
+    var predefinedFields = ["PROJECT NAME", "MODULE NAME", "MODEL NAME", "MODEL VERSION", "SCENARIO ID", "SCENARIO NAME", "COMPONENT NAME", "COMPONENT TYPE", "STEP DATA", "STEP ID", "STEP DESCRIPTION", "EXPECTED RESULT", "CRITICALITY", "RISK EXPOSURE", "DESIGNER", ""];
+    function editUser(inputIndex) {
+        $("#navigation ul li:nth-child(4) a").show();
+        $("#navigation ul li:nth-child(4)").show();
+        $("#navigation ul li:nth-child(4) a").click();
+        var user = userObjs[inputIndex];
+        $("#editUid").val(user.id);
+        $("#editUserAlias").val(user.userID);
+        $("#editFullname").val(user.userName);
+        $("#editPass").val('iauthor');
+        $("#editConfirmpass").val('iauthor');
+        $("#editEmail").val(user.userEmail);
+        $("#editStartdate").val('');
+        if (user.activeStartDate != null) {
+            $("#editStartdate").val(user.activeStartDate);
+        } else {
+            var now = new Date();
+            var year = now.getFullYear();
+            var month = now.getMonth() + 1;
+            var day = now.getDate();
+            if (month.toString().length == 1) {
+                var month = '0' + month;
+            }
+            if (day.toString().length == 1) {
+                var day = '0' + day;
+            }
+            $("#editStartdate").val(year + '-' + month + '-' + day);
+        }
+        $("#editEnddate").val('');
+        if (user.activeEndDate != null) {
+            $("#editEnddate").val(user.activeEndDate);
+        }
+        $("#editRole").val(user.role.id);
+        $("#editClient").val(user.baccount.id);
+        $('#editProject').empty();
+        if (user.active != 1) {
+            $("#editAct").prop('checked', false);
+        } else {
+            $("#editAct").prop('checked', true);
+        }
+        loadAccountProjects('editProject', user.baccount.id, user);
+    }
+    var editBusinessAccountIndex = 0;
+    function editBusinessAccount(inputIndex) {
+        $('.baSubmit').addClass('icon-btn-disable');
+        $('.baUpdate').removeClass('icon-btn-disable');
+        //dailogmsg("Implementation in progress. Will be available shortly");
+        var selectedBusinessAccount = businessAccountData[inputIndex];
+        editBusinessAccountIndex = selectedBusinessAccount.id;
+        $("#baName").val(selectedBusinessAccount.name);
+        $("#baName").prop("disabled", true);
+        $("#baDesc").val(selectedBusinessAccount.description);
+        $("#baLocation").val(selectedBusinessAccount.location);
+        if (selectedBusinessAccount.status_ba != 1) {
+            $("#isActive").prop('checked', false);
+        } else {
+            $("#isActive").prop('checked', true);
+        }
+    }
+    function editUserProjects(user) {
+        if (user.role.name !== 'Super Admin' && user.role.name !== 'Admin') {
+            onOrOffEditProject('on');
+            var valArr = user.projectIds,
+                $options = $('#editProject option');
+            for (var i = 0; i < valArr.length; i++) {
+                $options.filter('[value="' + valArr[i] + '"]').prop('selected', true);
+            }
+        } else {
+            onOrOffEditProject('off');
+            if (user.role.name === 'Super Admin') {
+                $("#editClient").prop("disabled", true);
+                $("#editClientLabelId").removeClass('required');
+            } else {
+                $("#editClient").prop("disabled", false);
+                $("#editClientLabelId").addClass('required');
+            }
+        }
+    }
+
+
+    function getDateTime(now) {
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var day = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        if (month.toString().length == 1) {
+            var month = '0' + month;
+        }
+        if (day.toString().length == 1) {
+            var day = '0' + day;
+        }
+        if (hour.toString().length == 1) {
+            var hour = '0' + hour;
+        }
+        if (minute.toString().length == 1) {
+            var minute = '0' + minute;
+        }
+        if (second.toString().length == 1) {
+            var second = '0' + second;
+        }
+        var dateTime = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
+        return dateTime;
+    }
+
+    var deleteobj;
+    function deleteUser(inputObj) {
+        deleteobj = inputObj;
+        deleteconfirmdailog(labelObj.deleteUser);
+    }
+
+    function deleteconfirmdailog(msg) {
+
+        $('<div id="createdeletemodal"  style="display: block;"  align="center">' +
+            '<div id="header-modal" align="left">' +
+            '<span>'+labelObj.dialogHeaderConfirm+'</span>' +
+            '</div>' +
+            '<div id="body-modal" class="popupbodytxt">' +
+            '<div>' + msg + '</div>' +
+            '<div id="footer-modal"><input id="modal-yes-delete" type="button" value="'+labelObj.buttonYes+'"><input id="modal-no-delete" type="button" value="'+labelObj.buttonNo+'"></div>' +
+            '</div>' +
+            '</div>').appendTo('#popupdata');
+
+        $('#modal-bg').addClass('bgopacity');
+
+    }
+
+    function deleteopentestconfirmdailog(msg) {
+
+        $('<div id="createopendeletemodal"  style="display: block;"  align="center">' +
+            '<div id="header-modal-open" align="left">' +
+            '<span>'+labelObj.dialogHeaderConfirm+'</span>' +
+            '</div>' +
+            '<div id="body-modal-open" class="popupbodytxt">' +
+            '<div>' + msg + '</div>' +
+            '<div id="footer-modal-open"><input id="modal-yes-delete-open" type="button" value="'+labelObj.buttonYes+'"><input id="modal-no-delete-open" type="button" value="'+labelObj.buttonNo+'"></div>' +
+            '</div>' +
+            '</div>').appendTo('#popupdata');
+
+        $('#modal-bg').addClass('bgopacity');
+
+    }
+
+    var deleterowId;
+    var deleteType;
+    function deleteConfirm() {
+
+        var par = $(this).parent().parent();
+        deleteType = par.parent().attr('value')
+        deleterowId = par.attr('value');
+
+        deleteopentestconfirmdailog(labelObj.deletekeyword);
+    }
+
+
+    $(document).on('click', '#modal-yes-delete-open', Delete);
+
+    $(document).on('click', '#modal-yes-delete', deleteuser);
+
+    $(document).on('click', '#modal-no-delete', function () {
+        var divToRemove = $(document).find("#createdeletemodal");
+        divToRemove.html('');
+        divToRemove.remove();
+        $('#modal-bg').removeClass('bgopacity');
+    });
+
+    $(document).on('click', '#modal-no-delete-open', function () {
+        var divToRemove = $(document).find("#createopendeletemodal");
+        divToRemove.html('');
+        divToRemove.remove();
+        $('#modal-bg').removeClass('bgopacity');
+    });
+
+    function deleteuser() {
+        var divToRemove = $(document).find("#createdeletemodal");
+        divToRemove.html('');
+        divToRemove.remove();
+        $('#modal-bg').removeClass('bgopacity');
+        data = { fileAdd: "DELU", delUserId: deleteobj };
+        sendAJAX(data, app_server_url, function (data) {
+            if (data["code"] == '200') {
+                dailogmsg(data.data);
+                $('#currentuser tbody').empty();
+                getUserList();
+            } else {
+                dailogmsg(data["msg"]);
+            }
+        });
+
+    }
+ 
+    $(document).on("click",".addarguDelete",function(){
+      
+     $(this).parent().parent().remove();
+    });
+    $(document).on("click",".btnDelete",function(){   
+        $('html, body').animate({scrollTop:0}, 'slow');
+         return false;
+      });
+
+    function Delete(){       
+        var openIndex = deleteType;
+        var divToRemove = $(document).find("#createopendeletemodal");
+        divToRemove.html('');
+        divToRemove.remove();
+        $('#modal-bg').removeClass('bgopacity');
+        $("#createopendeletemodal").hide();
+        var data = { fileAdd: "DOK", rowId: deleterowId, keyType: openIndex };
+        sendAJAX(data, app_server_url, function (data) {
+            var key = 0;
+            $("#opentestKeyword" + openIndex + " tbody").empty();
+            var keywordData = '';
+            var keywordsData = data.data;
+
+            if (keywordsData.length > 0) {
+                for (var index = 0; index < keywordsData.length; index++) {
+                    key = key + 1;
+                    keywordData += "<tr class='parent' value=" + keywordsData[index].id + "><td>" + (index + 1) + "</td><td class='plusImage'></td><td id='keyName" + openIndex + "-" + (key) + "'>" + keywordsData[index].keyword_name + "</td><td id='keyAction" + openIndex + "-" + (key) + "'>" + keywordsData[index].keyword_action + "</td>" + "<td id='keyDesc" + openIndex + "-" + (key) + "'>" + keywordsData[index].keyword_description + "</td>";
+                    var keyArgsLen=(keywordsData[index].key_args).length;
+                    if (keyArgsLen <=1) {
+                        if(keyArgsLen==0){
+                            keywordsData[index].key_args.push({
+                                name:"",
+                                type:"",
+                                values:""
+                            })
+                        }
+                        keywordData += "<td class='hassubnav' id='keyArg" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].values + "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                    } else {
+                        keywordData += "<td id='keyArg" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].values + "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                        var keyargs = keywordsData[index].key_args;
+
+                        for (var k = 1; k < keyargs.length; k++) {
+                            key = key + 1;
+                            keywordData += "<tr class='child' style='display:none;'><td></td><td></td><td></td><td></td><td></td><td id='keyArg" + openIndex + "-" + (key) + "'>" + keyargs[k].name + "</td><td id='keyType" + openIndex + "-" + (key) + "'>" + keyargs[k].type + "</td><td id='keyList" + openIndex + "-" + (key) + "'>" + keyargs[k].values + "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i></td></tr>";
+                        }
+                    }
+                }
+
+                $("#opentestKeyword" + openIndex + " tbody").append(keywordData);
+                $("#saveOpenTest").addClass('disablebutton');
+                $("#addOpenTest").removeClass('disablebutton');
+                $(".hassubnav").parent().find('td:nth-child(2)').removeClass('plusImage');
+            } else {
+
+                $("#opentestKeyword" + openIndex + " tbody").empty();
+            }
+
+        });
+    }
+    $(document).on("click",".cancelbtn",function(){
+       var test = $(this).parent().attr('value');
+       $('.'+test+'Keywordsave').hide();
+       $('[value='+test+'],#opentestKeyword'+test+'').show();
+    });
+
+    function loadResultTableGetUesrs(){
+                $("#resultTable").tabulator({
+                fitColumns: true,
+                tooltips: true,
+                addRowPos: "top",
+                history: true,
+                pagination: "local",
+                paginationSize: 16,
+                movableColumns: true,
+                initialSort: [
+                    { column: "name", dir: "asc" },
+                ],
+                columns: [
+                    { title: ""+labelObj.ulClient, field: "Client", editor: "false" },
+                    { title: ""+labelObj.ulProjects, field: "Projects", editor: "false" },
+                    { title: ""+labelObj.ulUserId, field: "UserId", editor: "false" },
+                    { title: ""+labelObj.ulFN, field: "FullName", editor: "false" },
+                    { title: ""+labelObj.ulEmail, field: "Email", editor: "false" },
+                    { title: ""+labelObj.ulStartDt, field: "StartDate", editor: "false" },
+                    { title: ""+labelObj.ulEndDt, field: "EndDate", editor: "false" },
+                    { title: ""+labelObj.ulRole, field: "Role", editor: "false" },
+                    {
+                        title: ""+labelObj.ulStatus, field: "Status", editor: "false", formatter: function (cell, formatterParams) {
+                            var value = cell.getValue();
+                            if (value === "Active") {
+                                return "<span class='label-success'>" + value + "</span>";
+                            } else {
+                                return "<span class='label-fail'>" + value + "</span>";
+                            }
+                        }
+                    },
+                    {
+                        title: ""+labelObj.ulAction, field: "Action", editor: "false", formatter: function (cell, formatters) {
+                            return cell.getValue();
+                        }
+                    }
+                ],
+
+            });
+            $("#tabulator-controls input[name=name]").on("keyup", function () {
+                $("#resultTable").tabulator("setFilter", customFilter, { input: $(this).val() });
+            });
+        }
+      
+
+
+    function getUserList() {
+        var data = { fileAdd: "GUL", role_id: session.userDetails.role, baccount_id: session.userDetails.baccount_id };
+        var row = "";
+        var userdata = [];
+        var actiondata;
+        sendAJAX(data, app_server_url, function (data) {
+            userObjs = data.data;
+            for (var i = 0; i < userObjs.length; i++) {
+                var startDate = '';
+                var endDate = '';
+                endDate = userObjs[i].activeEndDate;
+                startDate = userObjs[i].activeStartDate;
+                var acctName = userObjs[i].baccount.name;
+                var projectName = convertArrayToString(userObjs[i].projects);
+                row += "<tr><td>" + acctName + "</td><td>" + projectName + "</td><td>" + userObjs[i].userID + "</td><td>" + userObjs[i].userName + "</td><td>" + userObjs[i].userEmail + "</td><td>"
+                    + startDate + "</td><td>" + endDate + "</td><td>"
+                    + userObjs[i].role.name + "</td><td><span class='label-success'>" + userObjs[i].status.name + "</span></td>";
+                if (session.userDetails.roleName === 'Admin') {
+                    if (session.userDetails.id == userObjs[i].createdBy) {
+                        actiondata = "<td><a onclick='editUser(" + i + ")'><i class='fa fa-pencil-square-o' title='Edit' aria-hidden='true'></i></a><a onclick='deleteUser(" + userObjs[i].id + ")'><i class='fa fa-trash-o' title='delete' aria-hidden='true'></i></a></td>";
+                    } else {
+                        actiondata = "<td><a onclick='#'><i class='fa fa-pencil-square-o icon-btn-disable' title='Edit' aria-hidden='true'></i></a><a onclick='#'><i class='fa fa-trash-o icon-btn-disable' title='delete' aria-hidden='true'></i></a></td>";
+                    }
+                } else {
+                    if (session.userDetails.id == userObjs[i].userID) {
+                        actiondata = "<td><a onclick='#'><i class='fa fa-pencil-square-o icon-btn-disable' title='Edit' aria-hidden='true'></i></a><a onclick='#'><i class='fa fa-trash-o icon-btn-disable' title='delete' aria-hidden='true'></i></a></td>";
+                    } else {
+                        actiondata = "<td><a onclick='editUser(" + i + ")'><i class='fa fa-pencil-square-o' title='Edit' aria-hidden='true'></i></a><a onclick='deleteUser(" + userObjs[i].id + ")'><i class='fa fa-trash-o' title='delete' aria-hidden='true'></i></a></td>";
+                    }
+                }
+                var userjson = { Client: acctName, Projects: projectName, UserId: userObjs[i].userID, FullName: userObjs[i].userName, Email: userObjs[i].userEmail, StartDate: startDate, EndDate: endDate, Role: userObjs[i].role.name, Status: userObjs[i].status.name, Action: actiondata };
+                userdata.push(userjson);
+            }
+            $("#resultTable").tabulator("setData", userdata);
+            getAllRoles();
+            getAllBAccounts();
+        });
+    }
+
+    function getAllRoles() {
+        var data = { fileAdd: "GAR" };
+        sendAJAX(data, app_server_url, function (data) {
+            $.each(data.data, function (i, item) {
+                var optionObject = {
+                    value: item.id,
+                    text: item.name,
+                    selected: null
+                };
+                if (session.userDetails.roleName === 'Super Admin' && item.name === 'Admin') {
+                    optionObject.selected = 'selected';
+                    onOrOffProject('off');
+                } else if (session.userDetails.roleName === 'Admin' && item.name === 'User') {
+                    optionObject.selected = 'selected';
+                    onOrOffProject('on');
+                }
+                $('#newRole1').append($('<option>', optionObject));
+                $('#editRole').append($('<option>', optionObject));
+            });
+        });
+    }
+    var businessAccountData = [];
+    function getAllBAccounts() {
+        var data = { fileAdd: "GBA", actIds: [session.userDetails.baccount_id] };
+        sendAJAX(data, app_server_url, function (data) {
+            //var map = {};
+            var selectedVal = null;
+            if (data.data.length > 0) {
+                $.each(data.data, function (i, item) {
+                    if (item.active == 1) {
+                        $('#client1').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                        $('#editClient').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    }
+                    //map[item.id] = item.name;
+                    var actiondata_ba = "<a onclick='editBusinessAccount(" + i + ")'><i class='fa fa-pencil-square-o' title='Edit' aria-hidden='true'></i></a>";
+                    var busJson = { id: item.id, name: item.name, description: item.description, location: item.location, status_ba: item.active, Action_ba: actiondata_ba }
+                    businessAccountData.push(busJson);
+                });
+            }
+            $("#businessAccountTable").tabulator("setData", businessAccountData);
+        });
+    }
+
+    function onOrOffProject(display) {
+        if (display === 'on') {
+            $("#projectLabelId").show();
+            $("#project1").show();
+        } else {
+            $("#projectLabelId").hide();
+            $("#project1").hide();
+        }
+    }
+
+    function onOrOffEditProject(display) {
+        if (display === 'on') {
+            $("#editProjectLabelId").show();
+            $("#editProject").show();
+        } else {
+            $("#editProjectLabelId").hide();
+            $("#editProject").hide();
+        }
+    }
+
+    function loadAccountProjects(projectDivId, accountId, editUser) {
+        if (accountId != undefined && accountId != null && accountId != '') {
+            var data = { fileAdd: "GAP", baccount_id: accountId };
+            sendAJAX(data, app_server_url, function (data) {
+                if (data.data.length > 0) {
+                    $.each(data.data, function (i, item) {
+                        $('#' + projectDivId).append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    });
+                } else {
+                    $('#' + projectDivId).append($('<option>', {
+                        value: '',
+                        text: '- Not Available -'
+                    }));
+                }
+                if (editUser != null) {
+                    editUserProjects(editUser);
+                }
+            });
+        } else {
+            $('#' + projectDivId).append($('<option>', {
+                value: '',
+                text: 'SELECT PROJECT'
+            }));
+        }
+    }
+
+    function validateUser(action, userval, fullname, passw, confirmpassw, em, startD, endD, selRole, clien, projectVal, projectValStr) {
+        var uservalid = /^[A-Za-z0-9.]+$/;
+        var fullnamevalid = /^[a-zA-Z ]+$/;
+        var emailFilter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        var validationMsg = '';
+        var count = 0;
+        $("#" + action + "adminusererror").html('');
+        $("#" + action + "adminfullerror").html('');
+        $("#" + action + "adminpasserror").html('');
+        $("#" + action + "adminconfomrpasserror").html('');
+        $("#" + action + "adminemailerror").html('');
+        $("#" + action + "adminclienterror").html('');
+        $("#" + action + "adminprojecterror").html('');
+        $("#" + action + "adminstartdateerror").html('');
+        $("#" + action + "adminenddateerror").html('');
+
+        if (userval === "") {
+            count++;
+            $("#" + action + "adminusererror").html("Please Enter User ID");
+        }/* else if (!userval.match(uservalid)) {
+            count++;
+            $("#" + action + "#adminusererror").html("User ID should have only alpha numeric characters");
+        }*/
+        if (fullname === "") {
+            count++;
+            $("#" + action + "adminfullerror").html("Please Enter Full Name");
+
+        }/* else if (!fullname.match(fullnamevalid)) {
+            count++;
+            $("#" + action + "adminfullerror").html("Full Name should have only alphabets");
+        }*/
+        if (passw === "") {
+            count++;
+            $("#" + action + "adminpasserror").html("Please Enter Password");
+        }
+        if (confirmpassw === "") {
+            count++;
+            $("#" + action + "adminconfomrpasserror").html("Please Enter Confirm Password");
+        }
+        if (passw != confirmpassw) {
+            count++;
+            $("#" + action + "adminconfomrpasserror").html("Please Enter Correct Confirm Password");
+        }
+        if (em === "") {
+            count++;
+            $("#" + action + "adminemailerror").html("Please Enter Email Address");
+        } /*else if (!emailFilter.test(em)) {
+            count++;
+            $("#" + action + "adminemailerror").html("Please Provide a Valid Email Address");
+        }*/
+        if (startD === "") {
+            count++;
+            $("#" + action + "adminstartdateerror").html("Please Enter Access Start Date");
+
+        }
+        if (endD === "") {
+            count++;
+            $("#" + action + "adminenddateerror").html("Please Enter Access End Date");
+        }
+        if (startD != '' && endD != '') {
+
+            eDate = new Date(parseDateMMDDYYYY(endD));
+            eDate.setHours(23, 59, 59, 0);
+            sDate = new Date(parseDateMMDDYYYY(startD));
+            sDate.setHours(0, 0, 0, 999);
+            cDate = new Date();
+            cDate.setHours(0, 0, 0, 0);
+            if (action != 'edit' && sDate <= cDate) {
+                count++;
+                $("#" + action + "adminstartdateerror").html("Please ensure that the Start Date is greater than or equal to Today's date.");
+                //validationMsg=validationMsg+"Please ensure that the Start Date is greater than or equal to Today's date."+'\n';
+            }
+            if (sDate > eDate) {
+                count++;
+                $("#" + action + "adminenddateerror").html("Please ensure that the End Date is greater than or equal to the Start Date.");
+                // validationMsg=validationMsg+"Please ensure that the End Date is greater than or equal to the Start Date."+'\n';
+            }
+            if (eDate <= cDate) {
+                count++;
+                $("#" + action + "adminenddateerror").html("Please ensure that the End Date is greater than or equal to Today's date.");
+                //validationMsg=validationMsg+"Please ensure that the End Date is greater than or equal to Today's date."+'\n';
+            }
+        }
+        if (selRole !== 'Super Admin') {
+            if (clien === '') {
+                count++;
+                $("#" + action + "adminclienterror").html("Please Select Client");
+            }
+        }
+        if (selRole !== 'Super Admin' && selRole !== 'Admin') {
+            if (projectVal == null || projectValStr == '') {
+                count++;
+                $("#" + action + "adminprojecterror").html("Please Select atleast one Project");
+            }
+        }
+        return count;
+    }
+
+
+    $(document).ready(function () {
+
+        $("#homeId").on('click', createHome);
+
+        $(function () {
+
+            $(document).on("click", ".btnDelete", deleteConfirm);
+            $(".addArguments").on("click", Add);
+
+        });
+        $(document).on("click", "#OpenTestRowinnerappium tr .plusImage,#OpenTestRowinnerselenium tr .plusImage,#OpenTestRowinnergeneric tr .plusImage", function(){                                
+                    $(this).toggleClass('minusImage');
+                    $(this).parent().nextUntil('.parent').toggle();
+                });
+
+
+       $(document).on("change",".selectChange",function(){
+          var selectboxVal =$(this).attr("id");  
+          var inputListId ="keyList"+selectboxVal.substring(7,selectboxVal.length);   
+          var optionVal = $("#"+selectboxVal).val();
+          if(optionVal=="Text"){
+             $("#"+inputListId).val("");
+             $("#"+inputListId).attr("disabled", "disabled"); 
+          }else{
+            $("#"+inputListId).removeAttr("disabled");
+          }
+
+       });         
+       loadI18Ndata('ADMIN');
+        var rowId = 1;
+        var argumentrow = 1;
+        var rowIdArr = [];
+        var rowIdjson = {};
+        var rwokeyvalue = [];
+        var savettpe = '';
+        var roleName = session.userDetails.roleName;
+        var index = 1;
+        $("#openTesttabs li a").click(function () {
+           
+            index = 1;
+            var keyName = $(this).attr('value');
+            $("." + keyName + "Keywordsave").hide();
+            $("#opentestKeyword" + keyName + ",.addOpenTest").show();
+            $("#opentestKeywordsCreate"+keyName+" tbody").empty();
+            $('#opentestKeyword' + keyName + '').each(function(){
+                var $table = $(this);  
+            });  
+
+            $("#seleniumSave").addClass('disablebutton');
+            $("#addOpenTest").removeClass('disablebutton');
+            if (roleName == "Admin") { 
+                $('.addOpenTest').hide();
+            }
+
+            var data = { fileAdd: "GOK", key: keyName };
+            sendAJAX(data, app_server_url, function (data) {
+                var key = 0;
+                if (data.code == 200) {
+
+                    $("#opentestKeyword" + keyName + " tbody").empty();
+                    var keywordData = '';
+                    var keywordsData = data.data;
+                    for (var index = 0; index < keywordsData.length; index++) {
+                        key = key + 1;
+                        keywordData += "<tr class='parent' value=" + keywordsData[index].id + "><td>" + (index + 1) + "</td><td class='plusImage'></td><td id='keyName" + keyName + "-" + (key) + "'>" + keywordsData[index].keyword_name + "</td><td id='keyAction" + keyName + "-" + (key) + "'>" + keywordsData[index].keyword_action + "</td>" + "<td id='keyDesc" + keyName + "-" + (key) + "'>" + keywordsData[index].keyword_description + "</td>";
+                        var keyArgsLen=(keywordsData[index].key_args).length;
+                        if (keyArgsLen <= 1) {
+                            if(keyArgsLen==0){
+                                keywordsData[index].key_args.push({
+                                    name:"",
+                                    type:"",
+                                    values:""
+                                })
+                            }
+                            keywordData += "<td class='hassubnav' id='keyArg" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].values;
+                            if (roleName == "Super Admin") {                               
+                                keywordData += "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>"
+                            } else {                               
+                                $("#opentestKeywordappium,#opentestKeywordselenium,#opentestKeywordgeneric").addClass('superadminAction');
+                               
+                                keywordData += "</tr>"
+                            }
+                        } else {
+
+                            keywordData += "<td id='keyArg" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].values + "</td>";
+                            if (roleName == "Super Admin") {
+                                keywordData += "<td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                            } else {
+                                $("#OpenTestRowinner" + keyName + " thead tr th:nth-child(8),#opentestKeywordsTableinner" + keyName + " thead tr th:nth-child(9)").css("display", "none");
+                                $(".opetext-btns").hide();
+                                keywordData += "</tr>"
+                            }
+                            var keyargs = keywordsData[index].key_args;
+                            for (var k = 1; k < keyargs.length; k++) {
+                                key = key + 1;
+                                keywordData += "<tr class='child' style='display:none;'><td></td><td></td><td></td><td></td><td></td><td id='keyArg" + keyName + "-" + (key) + "'>" + keyargs[k].name + "</td><td id='keyType" + keyName + "-" + (key) + "'>" + keyargs[k].type + "</td><td id='keyList" + keyName + "-" + (key) + "'>" + keyargs[k].values + "</td>";
+                                if (roleName == "Super Admin") {
+                                    keywordData += "<td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i></td></tr>";
+                                } else {
+                                    keywordData += "</tr>";
+                                }
+                            }
+                        }
+                    }
+                    $("#opentestKeywordsTableinner" + keyName + " thead tr th:nth-child(8),#opentestKeywordsTableinner" + keyName + " thead tr th:nth-child(9)").css("display", "none");
+
+                    $("#opentestKeyword" + keyName + " tbody").append(keywordData);
+
+                    $("#OpenTestRowinner" + keyName + " tr").each(function (index) {
+                        var rowIndex = index + 1;
+                        $(this).attr("row", rowIndex);
+                        rowIndex++;
+                    });
+                }
+                $(".hassubnav").parent().find('td:nth-child(2)').removeClass('plusImage');
+                $("#OpenTestRowinner" + keyName + " tr .plusImage").each(function () {
+                    if ($(this).css('display') != 'none') {
+                        $(this).parent().css("padding-left", "0px");
+                    }
+                });
+            });
+            keywordData = '';
+
+
+        });
+        $(".addOpenTest").click(function () {
+            index=1;
+            var tabType = $(this).attr('value');
+            $("#hidden"+tabType).val(0);
+            $("#"+tabType+"KeywordsaveTable input,#applyOpenTestCreateRowinner"+tabType+" input,#"+tabType+"KeywordsaveTable textarea").val('');
+            $("#applyOpenTestCreateRowinner"+tabType+"").empty();
+            $("#opentestKeyword" + tabType + ",.addOpenTest").hide();
+            $("." + tabType + "Keywordsave,").show();
+        })
+
+        function Add() {
+            //index=1;
+            var type;
+            var argsbody = '';
+            var tabType = $(this).parent().attr('value');
+            argsbody+="<tr value='0'><td>"+"<input type='text' id='keyArg"+tabType+"-"+index+"'>"+"</td><td>"+"<select id='keyType"+tabType+"-"+index+"'><option>Text</option><option>List</option>"+"</td><td>"+"<input type='text' id='keyList"+tabType+"-"+index+"'></td><td><i class='fa fa-trash-o addarguDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+            $("#opentestKeywordsCreate" + tabType + " tbody").append(argsbody);
+            index++;
+        }
+
+        $(document).on("click", '.btnEdit', function () {
+            index = 1;  
+            var par = $(this).parent().parent();
+            var parVal = par.attr('value')
+            var openIndex = $(this).parent().parent().parent().attr('value');
+            $('#errorkeyName' + openIndex + ',#errorkeyAction' + openIndex + ',#errorkeydesc' + openIndex + '').hide();
+            $("#opentestKeywordsCreate"+openIndex+" tbody").empty();
+            $("#opentestKeyword" + openIndex + ",.addOpenTest").hide();
+            $("." + openIndex + "Keywordsave").show();
+
+            var data = { fileAdd: "EOK", keyType: openIndex, keyId: parVal };
+            sendAJAX(data, app_server_url, function (data) {
+                var keyargsdata = '';
+                var keywordData = data.data[0];
+                var keyId = keywordData.id;
+                var keyName = keywordData.keyword_name;
+                var keyAction = keywordData.keyword_action;
+                var keyDesc = keywordData.keyword_description;
+                var keyargs = keywordData.key_args;
+
+                $("#hidden" + openIndex + "").val(keyId);
+                $("#keyName" + openIndex + "").val(keyName);
+                $("#keyAction" + openIndex + "").val(keyAction);
+                $("#keydesc" + openIndex + "").val(keyDesc);
+
+                if (keyargs.length > 0) {
+                    for (var i = 0; i < keyargs.length; i++) {
+                        var argsJson = keyargs[i];
+                        var typeData =argsJson.type;
+                        var optionVal='';
+                        var dis=''; 
+                        if(typeData=="Text"){
+                            optionVal="List";                
+                              dis='disabled';
+                        }else{
+                            optionVal="Text";                           
+                        }
+                       
+                        keyargsdata += "<tr><td>" + "<input type='text' id='keyArg" + openIndex + "-" + index + "' value=" + argsJson.name + ">" + "</td><td>" + "<select class ='selectChange' id='keyType" + openIndex + "-" + index + "'><option selected>"+argsJson.type+"</option><option>"+optionVal+"</option>" + "</td><td>" + "<input type='text' id=keyList"+openIndex+"-"+index+" value ='"+argsJson.values+"' "+dis+">" + "</td><td><i class='fa fa-trash-o addarguDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                        index++;
+                    }
+
+                    $("#opentestKeywordsCreate" + openIndex + " tbody").append(keyargsdata);
+                }
+            });
+
+
+        });
+ $(".ui-loader").hide();
+
+        $(function () {
+            $("#tabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
+            $("#tabs li").removeClass("ui-corner-top").addClass("ui-corner-left");
+        });
+
+
+
+        var isSet = "false";
+        $(".ui-icon-loading").hide();
+        $("#sortable").sortable({
+            items: "li:not(.unsortable)"
+        });
+
+        $("#ui-id-8").on("click", function () {
+            $("#appkey a").trigger('click');
+            var keyName = "appium"
+
+            var data = { fileAdd: "GOK", key: keyName };
+            sendAJAX(data, app_server_url, function (data) {
+                var key = 0;
+                if (data.code == 200) {
+                    $("#opentestKeywordsTableinner" + keyName + " tbody").empty();
+                    var keywordData = '';
+                    var keywordsData = data.data;
+                    for (var index = 0; index < keywordsData.length; index++) {
+                        key = key + 1;
+                        keywordData += "<tr class='parent' value=" + keywordsData[index].id + "><td>" + (index + 1) + "</td><td class='plusImage'></td><td id='keyName" + keyName + "-" + (key) + "'>" + keywordsData[index].keyword_name + "</td><td id='keyAction" + keyName + "-" + (key) + "'>" + keywordsData[index].keyword_action + "</td>";
+                        var keyArgsLen=(keywordsData[index].key_args).length;
+                        if (keyArgsLen <= 1) {
+                            if(keyArgsLen==0){
+                                keywordsData[index].key_args.push({
+                                    name:"",
+                                    type:"",
+                                    values:""
+                                })
+                            }
+                            keywordData += "<td class='hassubnav' id='keyArg" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].values;
+                            if (roleName == "Super Admin") {
+                                keywordData += "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>"
+                            } else {
+                                keywordData += "</tr>"
+                            }
+                        } else {
+
+                            keywordData += "<td id='keyArg" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + keyName + "-" + (key) + "'>" + keywordsData[index].key_args[0].values + "</td>";
+                            if (roleName == "Super Admin") {
+                                keywordData += "<td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                            } else {
+                                $("#opentestKeywordsTableinner" + keyName + " thead tr th:nth-child(8),#opentestKeywordsTableinner" + keyName + " thead tr th:nth-child(9)").css("display", "none");
+                                $(".opetext-btns").hide();
+                                keywordData += "</tr>"
+                            }
+                            var keyargs = keywordsData[index].key_args;
+
+                            for (var k = 1; k < keyargs.length; k++) {
+                                key = key + 1;
+                                keywordData += "<tr class='child' style='display:none;'><td></td><td></td><td></td><td></td><td id='keyArg" + keyName + "-" + (key) + "'>" + keyargs[k].name + "</td><td id='keyType" + keyName + "-" + (key) + "'>" + keyargs[k].type + "</td><td id='keyList" + keyName + "-" + (key) + "'>" + keyargs[k].values + "</td>";
+                                if (roleName == "Super Admin") {
+                                    keywordData += "<td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i></td></tr>";
+                                } else {
+                                    keywordData += "</tr>";
+                                }
+                            }
+                        }
+                    }
+                    $("#opentestKeywordsTableinner" + keyName + " tbody").append(keywordData);
+
+                    $(".btnDelete").bind("click", deleteConfirm);                    
+                    $("#applyOpenTestRowinner" + keyName + " tr").each(function (index) {
+                        var rowIndex = index + 1;
+                        $(this).attr("row", rowIndex);
+                        rowIndex++;
+                    });
+                }
+                $(".hassubnav").parent().find('td:nth-child(2)').removeClass('plusImage');
+                $("#applyOpenTestRowinner" + keyName + " tr .plusImage").each(function () {
+                    if ($(this).css('display') != 'none') {
+                        $(this).parent().css("padding-left", "0px");
+                    }
+                });
+            });
+            keywordData = '';
+        });
+
+        $("input:radio").change(function () {
+            var typeDataVal = $(this).val();
+
+            if (typeDataVal == "cloud") {
+                $("#iauthorprojectdetails option:first").attr('selected', 'selected');
+                $('#jiraprojectId').empty().append('<option selected="selected" value="0">SELECT PROJECT</option>');
+                $("#jiraUsername").val("");
+                $("#jirapass").val("");
+                $("#jiraurl").val("");
+                $("#jiraaccesskeyId").val("");
+                $("#jirascretkeyId").val("");
+                $("#secretid").show();
+                $("#accessid").show();
+                $("#jirausernameerror").html('');
+                $("#jirapassworderror").html('');
+                $("#jirajiraurlerror").html('');
+                $("#jiraaccesskeyerror").html('');
+                $("#jirascretkeyerror").html('');
+                $("#jirasprojectdetailserror").html('');
+                $("#jiraprojectiderror").html('');
+
+
+            } else {
+                $("#iauthorprojectdetails option:first").attr('selected', 'selected');
+                $('#jiraprojectId').empty().append('<option selected="selected" value="0">SELECT PROJECT</option>');
+                $("#jiraUsername").val("");
+                $("#jirapass").val("");
+                $("#jiraurl").val("");
+                $("#secretid").hide();
+                $("#accessid").hide();
+                $("#jirausernameerror").html('');
+                $("#jirapassworderror").html('');
+                $("#jirajiraurlerror").html('');
+            }
+
+        });
+
+        $("#getProjectId").click(function () {
+
+            var userName = $("#jiraUsername").val();
+            var password = $("#jirapass").val();
+            var conUrl = $("#jiraurl").val();
+            var validatecount = validateprojectdetails(userName, password, conUrl);
+            if (validatecount > 0) {
+                return false;
+            }
+
+            var data = { fileAdd: "GJP", username: userName, password: password, conUrl: conUrl };
+            sendAJAX(data, app_server_url, function (data) {
+                if (data.code == 200) {
+                    $('#jiraprojectId').removeAttr("disabled");
+                    dailogmsg("Loaded Jira Projects. please select and Save");
+                    $('#jiraprojectId').empty().append('<option selected="selected" value="0">SELECT PROJECT</option>');
+                    $.each(data.data, function (index, item) {
+
+                        $('#jiraprojectId').append($('<option>', {
+                            value: index,
+                            text: item
+                        }));
+                    });
+                } else {
+                    dailogmsg(data.msg);
+                }
+            });
+
+
+        });
+
+        function validateprojectdetails(userName, password, conUrl) {
+            var uservalid = /^[a-zA-Z0-9.\-]+$/;
+            var count = 0;
+            $("#jirausernameerror").html('');
+            $("#jirapassworderror").html('');
+            $("#jirajiraurlerror").html('');
+            $("#jirajiraurlerror").html('');
+            $("#jirajiraurlerror").html('');
+
+            if (userName === "") {
+                count++;
+                $("#jirausernameerror").html("Please Enter User ID");
+            }/* else if (!userName.match(uservalid)) {
+                count++;
+                $("#jirausernameerror").html("User ID should have only alpha numeric characters");
+            }*/
+
+            if (password === "") {
+                count++;
+                $("#jirapassworderror").html("Please Enter Password");
+            }
+
+            if (conUrl === "") {
+                count++;
+                $("#jirajiraurlerror").html("Please Enter Url");
+            }
+
+            return count;
+        }
+
+        defaultTemplate();
+
+        $("#sortable").disableSelection();
+        $(document).on("click", ".tcconfigbox", function () {
+            var dropdownindex = $("select#testcase_project_id")[0].selectedIndex;
+            if (dropdownindex > 0) {
+                $(this).toggleClass('greencolorbox');
+            }
+        });
+
+        $(document).on("click", ".tcconfigbox", function () {
+            var isSet;
+            var selectedIndex = $("select#testcase_project_id")[0].selectedIndex;
+            if (selectedIndex == "0") {
+                $("#projecterror").html("Please Select a Project");
+                $(this).removeClass("greencolorbox");
+                isSet = "false";
+                return false;
+            } else {
+                isSet = "true";
+                return true;
+            }
+        });
+
+        $(document).on("click", ".greybgplus", function () {
+            var selectedIndex = $("select#testcase_project_id")[0].selectedIndex;
+            if (selectedIndex == "0") {
+                $("#projecterror").html("Please Select a Project");
+            } else {
+                $(this).before('<li class="tcconfigbox bluecolorbox" id=""><span><input type="text" style="text-transform: uppercase;" maxlength="30" onkeypress="return validateText(event)"/></span><i class="fa fa-trash-o deletefunc"></i></li>');
+            }
+        });
+
+
+
+        $(document).on('click', '.deletefunc', function () {
+            $(this).parent().remove();
+        });
+
+        $(".saveOpenTest").on("click", function () {
+            $('[value='+openIndex+']').hide();
+            var openIndex = $(this).parent().attr('value');         
+            var openTestArr = [];
+            var openTestJson = {};
+            var args = {};
+            var trrowlen = $("#applyOpenTestCreateRowinner" + openIndex + " tr").length;
+            var prevoisKey;
+            var indexCount = 0;
+            var args = [];
+            var keywordId = $("#hidden" + openIndex).val()
+            var keywordName = $("#keyName" + openIndex).val();
+            var keywordAction = $("#keyAction" + openIndex).val();
+            var keyworddesc = $("#keydesc" + openIndex).val();
+            for (var i = 0; i < trrowlen; i++) {
+                var keyArg = $("#keyArg" + openIndex + "-" + (i + 1)).val();
+                var keyType = $("#keyType" + openIndex + "-" + (i + 1)).val();
+                var keyList = $("#keyList" + openIndex + "-" + (i + 1)).val();
+                var argsjson = { "name": keyArg, "type": keyType, "values": keyList };
+               if(keyArg!=''){  
+                 args.push(argsjson);
+               } 
+            }
+
+            var openTestJson = { "keyId": keywordId, "keyname": keywordName, "keyAction": keywordAction, "keyDesc": keyworddesc, "args": args, "keyword_type": openIndex }
+
+
+
+            var data = { fileAdd: "SOK", openTestKeys: openTestJson };
+            sendAJAX(data, app_server_url, function (data) {
+                var key = 0;
+            if($('#keyName' + openIndex + '').val()  && $('#keyAction' + openIndex + '').val() && $('#keydesc' + openIndex + '').val() != ''){
+                    $("#opentestKeyword" + openIndex + "").show();
+                    $("." + openIndex + "Keywordsave").hide();    
+                    $('[value='+openIndex+']').show();  
+                    $('#errorkeydesc' + openIndex + '').hide();
+            }else{   
+                if($('#keyName' + openIndex + '').val() == ""){
+                    $('#errorkeyName' + openIndex + '').show();
+                }else{
+                    $('#errorkeyName' + openIndex + '').hide();
+                } 
+                if($('#keyAction' + openIndex + '').val() == ""){
+                    $('#errorkeyAction' + openIndex + '').show();
+                }else{
+                    $('#errorkeyAction' + openIndex + '').hide();
+                }
+                if($('#keydesc' + openIndex + '').val() == ""){
+                    $('#errorkeydesc' + openIndex + '').show();
+                }else{
+                    $('#errorkeydesc' + openIndex + '').hide();
+                }   
+                            
+            }
+                
+                $("#opentestKeyword" + openIndex + " tbody").empty();
+                var keywordData = '';
+                var keywordsData = data.data;
+
+
+                for (var index = 0; index < keywordsData.length; index++) {
+                    key = key + 1;
+                    keywordData += "<tr class='parent' value=" + keywordsData[index].id + "><td>" + (index + 1) + "</td><td class='plusImage'></td><td id='keyName" + openIndex + "-" + (key) + "'>" + keywordsData[index].keyword_name + "</td><td id='keyAction" + openIndex + "-" + (key) + "'>" + keywordsData[index].keyword_action + "</td>" + "<td id='keyDesc" + openIndex + "-" + (key) + "'>" + keywordsData[index].keyword_description + "</td>";
+                    var keyArgsLen=(keywordsData[index].key_args).length;
+                    if (keyArgsLen <=1) {
+                        if(keyArgsLen==0){
+                            keywordsData[index].key_args.push({
+                                name:"",
+                                type:"",
+                                values:""
+                            })
+                        }
+                        keywordData += "<td class='hassubnav' id='keyArg" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].values + "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                    } else {                        
+                        var keyargs = keywordsData[index].key_args;
+                        if(keyargs.length>0){  
+                            keywordData += "<td id='keyArg" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].name + "</td><td id='keyType" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].type + "</td><td id='keyList" + openIndex + "-" + (key) + "'>" + keywordsData[index].key_args[0].values + "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i><i class='fa fa-trash-o btnDelete' title='Delete' aria-hidden='true'></i></td></tr>";
+                            for (var k = 1; k < keyargs.length; k++) {
+                                key = key + 1;
+                                keywordData += "<tr class='child' style='display:none;'><td></td><td></td><td></td><td></td><td></td><td id='keyArg" + openIndex + "-" + (key) + "'>" + keyargs[k].name + "</td><td id='keyType" + openIndex + "-" + (key) + "'>" + keyargs[k].type + "</td><td id='keyList" + openIndex + "-" + (key) + "'>" + keyargs[k].values + "</td><td><i class='fa fa-pencil-square-o btnEdit' title='Edit' aria-hidden='true'></i></td></tr>";
+                            }
+                        }  
+                    }
+                }
+
+                $("#opentestKeyword" + openIndex + " tbody").append(keywordData);
+                $(".hassubnav").parent().find('td:nth-child(2)').removeClass('plusImage');
+            });
+           
+        });
+
+
+        $(".save-btnTC").click(function () {
+            var tempJson = [];
+            var testCaseOrder;
+            var index = 0;
+            var testCaseTemplate = {};
+            var testCaseColor = [];
+            var testCaseall = [];
+
+            $(".tcconfigbox").each(function () {
+                testCaseall.push($(this).find('span').text());
+            });
+            $(".tcconfigbox").each(function () {
+                var colorcode;
+                if ($(this).attr('class').split(' ')[1] == undefined) {
+                    colorcode = "greycolorbox";
+                } else {
+                    colorcode = $(this).attr('class').split(' ')[1];
+                }
+
+                testCaseColor.push({ "name": $(this).find('span').text(), "color": colorcode })
+            });
+
+            $(".greencolorbox span").each(function () {
+                var selectedtext = $(this).text();
+                if (selectedtext != "") {
+                    index = index + 1;
+                    testCaseOrder = { "isUserDefined": false, "name": selectedtext, order: index };
+                    tempJson.push(testCaseOrder);
+                }
+            });
+
+            $(".bluecolorbox span").each(function () {
+                var selectedtext = $(this).text();
+                if (selectedtext != "") {
+                    index = index + 1;
+                    tempJson.push({ "isUserDefined": true, "name": selectedtext, order: index });
+                }
+            });
+
+            testCaseTemplate["testcaseTemp"] = tempJson;
+            testCaseTemplate["testCaseColor"] = testCaseColor;
+            testCaseTemplate["testdataall"] = testCaseall;
+
+
+
+            var selectedprojval = $("#testcase_project_id option:selected").val();
+
+            if (selectedprojval > 0) {
+                var data = { fileAdd: "PTC", busID: selectedprojval, testcaseTemplate: testCaseTemplate };
+                sendAJAX(data, app_server_url, function (data) {
+                    dailogmsg(data.data)
+                });
+            }
+            else {
+                $("#projecterror").html("Please Select a Project")
+                return false;
+            }
+            $("#testcase_project_id")[0].selectedIndex = 0;
+
+            $(".Tcconfigboxes .bluecolorbox").each(function () {
+                $(this).remove();
+            });
+            $(".tcconfigbox").removeClass('greencolorbox');
+            index = 0;
+        });
+        getProjectDetails();
+        var genderEditor = function (cell, onRendered, success, cancel) {
+            var editor = $("<select><option value=''></option><option value='male'>male</option><option value='female'>female</option></select>");
+            editor.css({
+                "padding": "5px",
+                "width": "100%",
+                "box-sizing": "border-box",
+            });
+
+            //Set value of editor to the current value of the cell
+            editor.val(cell.getValue());
+
+            //set focus on the select box when the editor is selected (timeout allows for editor to be added to DOM)
+            onRendered(function () {
+                editor.focus();
+                editor.css("height", "100%");
+            });
+
+            //when the value has been set, trigger the cell to update
+            editor.on("change blur", function (e) {
+                success(editor.val());
+            });
+
+            //return the editor element
+            return editor;
+        };
+
+        //generate line chart
+        var lineFormatter = function (cell, formatterParams) {
+            setTimeout(function () { //give cell enough time to be added to the DOM before calling sparkline formatter
+                cell.getElement().sparkline(cell.getValue(), { width: "100%", type: "line", disableTooltips: true });
+            }, 10);
+        };
+
+        $(".ui-tabs-anchor").on("click", function () {
+            $(".tabulator-page:first-child").click();
+        });
+
+      
+
+        function customFilter(data, filterParams) {
+            return data.UserId.indexOf(filterParams.input) != -1 || data.FullName.indexOf(filterParams.input) != -1 || data.Email.indexOf(filterParams.input) != -1; //must return a boolean, true if it passes the filter.
+        }
+        $("#businessAccountTable").tabulator({
+            fitColumns: true,
+            tooltips: true,
+            addRowPos: "top",
+            history: true,
+            pagination: "local",
+            paginationSize: 16,
+            movableColumns: true,
+            initialSort: [
+                { column: "name", dir: "asc" },
+            ],
+            columns: [
+                { title: "Name", field: "name", editor: "false" },
+                { title: "Description", field: "description", editor: "false" },
+                { title: "Location", field: "location", editor: "false" },
+                {
+                    title: "Status", field: "status_ba", editor: "false", align: "center", formatter: function (cell, formatterParams) {
+                        tempCell = cell;
+                        var value = cell.getValue();
+                        //alert("value::"+value);
+                        if (value === 1) {
+                            return "<span class='label-success'>" + 'Active' + "</span>";
+                        } else {
+                            return "<span class='label-fail'>" + 'Account Locked' + "</span>";
+                        }
+                    }
+                },
+                {
+                    title: "Action", field: "Action_ba", editor: "false", align: "center", formatter: function (cell, formatters) {
+                        return cell.getValue();
+                    }
+                }
+            ]
+        });
+
+        $(window).resize(function () {
+            $("#businessAccountTable").tabulator("redraw");
+        });
+        $(window).resize(function () {
+            $("#resultTable").tabulator("redraw");
+        });
+        if (session.userDetails != undefined) {
+            printUserName(session.userDetails.name);
+            if (session.userDetails.roleName === 'Admin') {
+                $("#navigation ul li:nth-child(3) a").hide();
+            }
+            var userRole = session.userDetails.roleName;
+            if (session.userDetails.roleName === 'Admin') {
+                $("#projectLabelId").addClass('required');
+            }
+            if (session.userDetails.roleName === 'Admin') {
+                checkPcheckProjectExist(session.userDetails.id);
+            }
+            if (userRole === 'Super Admin' || userRole === 'Read-Only User' || userRole === 'User') {
+                $("#navigation ul li:nth-child(5) a").hide();
+                $("#navigation ul li:nth-child(6) a").hide();
+            } else {
+                $("#navigation ul li:nth-child(3)").hide();
+                $("#navigation ul li:nth-child(4)").hide();
+            }
+            removeJQMMinHeight();
+            if (session.userDetails.roleName === 'Admin' || session.userDetails.roleName === 'Super Admin') {
+                isAdmin = true;
+            }
+            if (!isAdmin) {
+                $("#adminId").remove();
+                $("#adminGuideId").remove();
+            }
+        }
+        function removeJQMMinHeight() {
+            setTimeout(function () {
+                $('#iauthoradmin').removeAttr("style");
+            }, 50);
+        }
+
+        $("#usercancel").click(function () {
+            //window.location.href = app_server_url+"/home.html";
+            clearErrorMsg();
+            $("#navigation ul li:first-child a").trigger('click');
+
+        });
+
+        function clearErrorMsg() {
+            $("#createadminusererror").html('');
+            $("#createadminfullerror").html('');
+            $("#createadminpasserror").html('');
+            $("#createadminconfomrpasserror").html('');
+            $("#createadminemailerror").html('');
+            $("#createadminroleerror").html('');
+            $("#createadminstartdateerror").html('');
+            $("#createadminenddateerror").html('');
+            $("#createadminclienterror").html('');
+            $("#createadminprojecterror").html('');
+        }
+
+        $("#userEditCancel").click(function () {
+            //window.location.href = app_server_url+"/home.html";
+            $("#navigation ul li:first-child a").trigger('click');
+            $("#navigation ul li:nth-child(4) a").hide();
+            $("#navigation ul li:nth-child(4)").hide();
+        });
+
+        $(".usersubmit").click(function (e) {
+            var activestatus;
+            var userval = $("#userAlias").val();
+            var fullname = $("#fullname").val();
+            var passw = $("#pass").val();
+            var confirmpassw = $("#Confirmpass").val();
+            var em = $("#email").val();
+            var startD = $("#startdate").val();
+            var endD = $("#enddate").val();
+            var ner = $("#newRole1").val();
+            var selRole = $("#newRole1 option:selected").text();
+            var clien = $("#client1").val();
+            var projectVal = $("#project1").val();
+            var projectValStr = convertArrayToString(projectVal);
+            var validationMsgCount = validateUser('create', userval, fullname, passw, confirmpassw, em, startD, endD, selRole, clien, projectVal, projectValStr);
+            if (validationMsgCount > 0) {
+                return false;
+            }
+
+            var isActive = $("#act").is(':checked');
+            if (isActive) {
+                activestatus = 1;
+            } else {
+                activestatus = 2;
+            }
+
+            if (selRole === 'Super Admin' || selRole === 'Admin') {
+                projectValStr = '';
+                if (selRole === 'Super Admin') {
+                    clien = '';
+                }
+            }
+            startD = getDateTime(sDate);
+            endD = getDateTime(eDate);
+            var data = { fileAdd: "CU", uId: userval, uPass: passw, uName: fullname, uEmail: em, uRole: ner, status: activestatus, bAccounts: clien, projectId: projectValStr, userIsDemo: 0, sDateS: startD, eDateS: endD }
+            sendAJAX(data, app_server_url, function (data) {
+                console.log(data.msg);
+                if (data["code"] == '200') {
+                    dailogadminmsg("User created succesfully");
+                } else {
+                    dailogmsg(data["msg"]);
+                }
+            });
+        });
+
+        $(".userUpdate").click(function (e) {
+            var activestatus;
+            var editId = $("#editUid").val();
+            var userval = $("#editUserAlias").val();
+            var fullname = $("#editFullname").val();
+            var passw = $("#editPass").val();
+            var confirmpassw = $("#editConfirmpass").val();
+            var em = $("#editEmail").val();
+            var startD = $("#editStartdate").val();
+            var endD = $("#editEnddate").val();
+            var ner = $("#editRole").val();
+            var selRole = $("#editRole option:selected").text();
+            var clien = $("#editClient").val();
+            var projectVal = $("#editProject").val();
+            var projectValStr = convertArrayToString(projectVal);
+            var validationMsgCount = validateUser('edit', userval, fullname, passw, confirmpassw, em, startD, endD, selRole, clien, projectVal, projectValStr);
+            if (validationMsgCount != 0) {
+                // dailogmsg(validationMsg);
+                return false;
+            }
+
+            var isActive = $("#editAct").is(':checked');
+            if (isActive) {
+                activestatus = 1;
+            } else {
+                activestatus = 2;
+            }
+
+            if (selRole === 'Super Admin' || selRole === 'Admin') {
+                projectValStr = '';
+                if (selRole === 'Super Admin') {
+                    clien = '';
+                }
+            }
+            startD = getDateTime(sDate);
+            endD = getDateTime(eDate);
+            var data = { fileAdd: "EU", id: editId, uId: userval, uPass: passw, uName: fullname, uEmail: em, uRole: ner, status: activestatus, bAccounts: clien, projectId: projectValStr, userIsDemo: 0, sDateS: startD, eDateS: endD }
+            sendAJAX(data, app_server_url, function (data) {
+                console.log(data.msg);
+                if (data["code"] == '200') {
+                    dailogadminmsg("User updated succesfully");
+                } else {
+                    dailogmsg(data["msg"]);
+                }
+            });
+        });
+        $(".baSubmit").click(function (e) {
+            var name = $("#baName").val();
+            var desc = $("#baDesc").val();
+            var location = $("#baLocation").val();
+            var isActive = $("#isActive").is(':checked');
+            if (isActive) {
+                isActive = 1;
+            } else {
+                isActive = 0;
+            }
+            $("#businessnameerror").html('');
+            $("#businessdescerror").html('');
+            $("#businesslocerror").html('');
+            name = name.trim();
+            desc = desc.trim();
+            location = location.trim();
+            if (name === "" || desc === "" || location === "") {
+                if (name === "") {
+                    $("#businessnameerror").html('Please Enter Name');
+                }
+                if (desc === "") {
+                    $("#businessdescerror").html('Please Enter Description');
+                }
+                if (location === "") {
+                    $("#businesslocerror").html('Please Enter Location');
+                }
+            } else {
+                var data = { fileAdd: "CBA", name: name, desc: desc, location: location, isActive: isActive };
+                sendAJAX(data, app_server_url, function (data) {
+                    console.log(data.msg);
+                    if (data["code"] == '200') {
+                        dailogadminmsg("Business Account created succesfully!!");
+                    } else {
+                        dailogmsg(data["msg"]);
+                    }
+                });
+            }
+        });
+
+        $(".baUpdate").click(function (e) {
+            var id = editBusinessAccountIndex;
+            var name = $("#baName").val();
+            var desc = $("#baDesc").val();
+            var location = $("#baLocation").val();
+            var isActive = $("#isActive").is(':checked');
+            if (isActive) {
+                isActive = 1;
+            } else {
+                isActive = 0;
+            }
+            $("#businessnameerror").html('');
+            $("#businessdescerror").html('');
+            $("#businesslocerror").html('');
+            desc = desc.trim();
+            location = location.trim();
+            if (desc === "" || location === "") {
+                if (name === "") {
+                    $("#businessnameerror").html('Please Enter Name');
+                }
+                if (desc === "") {
+                    $("#businessdescerror").html('Please Enter Description');
+                }
+                if (location === "") {
+                    $("#businesslocerror").html('Please Enter Location');
+                }
+            } else {
+                var data = { fileAdd: "UBA", id: id, name: name, desc: desc, location: location, isActive: isActive };
+                sendAJAX(data, app_server_url, function (data) {
+
+                    if (data["code"] == '200') {
+                        dailogadminmsg("Business Account updated succesfully!!");
+                    } else {
+                        dailogmsg(data["msg"]);
+                    }
+                });
+            }
+        });
+
+        $("#jiraSaveId").on("click", function () {
+            var type = $("input[name='jiratype']:checked").val();
+            var jiraconfigdetails;
+           // var type = '';
+            var projectId = $("#iauthorprojectdetails option:selected").val();
+            var jiraprojectId = $("#jiraprojectId option:selected").val();
+            var jiraprojectIdkey = jiraprojectId.substring(0, jiraprojectId.indexOf("@"));
+            var projectkey = jiraprojectId.substring(jiraprojectId.indexOf("@") + 1, jiraprojectId.length);
+            if (type == "cloud") {
+                var userName = $("#jiraUsername").val();
+                var password = $("#jirapass").val();
+                var url = $("#jiraurl").val();
+                var jiraaccesskey = $("#jiraaccesskeyId").val();
+                var jirascretkey = $("#jirascretkeyId").val();
+                type = "cloud";
+                jiraconfigdetails = { "type": type, "userName": userName, "password": password, "url": url, "jiraaccesskey": jiraaccesskey, "jirascretkey": jirascretkey, "jiraprojectid": jiraprojectIdkey, "projeckey": projectkey };
+                var validationCount = validatejirafields(userName, password, url, jiraaccesskey, jirascretkey, projectId, jiraprojectIdkey);
+                if (validationCount > 0) {
+                    return false;
+                }
+            } else {
+
+                var userName = $("#jiraUsername").val();
+                var password = $("#jirapass").val();
+                var url = $("#jiraurl").val();
+                var validationCount = validatejirafields(userName, password, url, jiraprojectIdkey);
+                if (validationCount > 0) {
+                    return false;
+                }
+                type = "premise";
+                jiraconfigdetails = { "type": type, "userName": userName, "password": password, "url": url, "jiraprojectid": jiraprojectIdkey, "projeckey": projectkey };
+            }
+          
+
+            if (projectId > 0) {
+                if (jiraprojectIdkey > 0) {
+                    var data = { fileAdd: "JCD", projectid: projectId, toolname: "jira", configdetails: jiraconfigdetails };
+                    sendAJAX(data, app_server_url, function (data) {
+                        if (data.data == "1") {
+                            dailogmsg("Jira configuration details updated successfully");
+                        } else {
+                            dailogmsg("Jira configuration details saved successfully");
+                        }
+                    });
+                } else {
+                    $("#jiraprojectiderror").html("Please select project");
+                }
+
+            } else {
+                $("#jirasprojectdetailserror").html("Please select project");
+                return false;
+            }
+            type='';
+
+        });
+
+        function validatejirafields(userName, password, url, jiraaccesskey, jirascretkey, projectId, jiraprojectId) {
+            var count = 0;
+            var uservalid = /^[a-zA-Z0-9.\-]+$/;
+            var emailFilter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+)+([a-zA-Z0-9]{2,4})+$/;
+            $("#jirausernameerror").html('');
+            $("#jirapassworderror").html('');
+            $("#jirajiraurlerror").html('');
+            $("#jiraaccesskeyerror").html('');
+            $("#jirascretkeyerror").html('');
+            $("#jirasprojectdetailserror").html('');
+            $("#jiraprojectiderror").html('');
+
+
+            if (userName === "") {
+                count++;
+                $("#jirausernameerror").html("Please Enter User ID");
+            } /*else if (!userName.match(uservalid)) {
+                count++;
+                $("#jirausernameerror").html("User ID should have only alpha numeric characters");
+            }*/
+
+            if (password === "") {
+                count++;
+                $("#jirapassworderror").html("Please Enter Password");
+            }
+
+            if (url === "") {
+                count++;
+                $("#jirajiraurlerror").html("Please Enter Url");
+            }
+
+            if (jiraaccesskey === "") {
+                count++;
+                $("#jiraaccesskeyerror").html("Please Enter Access Key");
+            }
+
+            if (jirascretkey === "") {
+                count++;
+                $("#jirascretkeyerror").html("Please Enter Scret Key");
+            }
+            if (projectId === "0") {
+                count++;
+                $("#jirasprojectdetailserror").html("Please project");
+            }
+            if (jiraprojectId === "0") {
+                count++;
+                $("#jiraprojectiderror").html("Please project");
+            }
+
+            return count;
+        }
+
+        function dailogadminmsg(msg) {
+            $('<div id="createalertadminmodal"  style="display: block;"  align="center">' +
+                '<div id="header-modal" align="left">' +
+                '<span>'+labelObj.dialogHeader+'</span>' +
+                '</div>' +
+                '<div id="body-modal" class="popupbodytxt">' +
+                '<div>' + msg + '</div>' +
+                '<div id="footer-modal"><input id="modal-admin-ok" type="button" value="'+labelObj.buttonOk+'"></div>' +
+                '</div>' +
+                '</div>' +
+                '</div>').appendTo('#popupdata');
+            $('#modal-bg').addClass('bgopacity');
+        }
+
+        $(document).on('click', '#modal-admin-ok', function () {
+            var divToRemove = $(document).find("#createalertadminmodal");
+            divToRemove.hide();
+            divToRemove.html('');
+            divToRemove.remove();
+            $('#modal-bg').removeClass('bgopacity');
+            window.location.href = app_server_url + "/pages/admin.html";
+        });
+
+        $(".hpSave").click(function (e) {
+            var projectid = $("#hpprojectid").val();
+            var url = $("#hpurl").val();
+            var domain = $("#hpdomain").val();
+            var project = $("#hpProject").val();
+            if (projectid == "") {
+                $("#hpalmproerror").html("Please Select Project");
+            } else {
+                $("#hpalmproerror").html("");
+                var data = { fileAdd: "CUQ", projectid: projectid, url: url, domain: domain, project: project };
+                sendAJAX(data, app_server_url, function (data) {
+                    if (data.data == "1") {
+                        dailogmsg("HP-ALM details updated sucessfully");
+                        $("#navigation ul li:first-child a").trigger('click');
+                    } else {
+                        dailogmsg("HP-ALM details created sucessfully");
+                        $("#navigation ul li:first-child a").trigger('click');
+                    }
+                });
+            }
+
+        });
+
+        $("#hpCancel").click(function () {
+            $("#navigation ul li:first-child a").trigger('click');
+        });
+
+        $("#baCancel").click(function () {
+            //window.location.href = app_server_url+"/home.html";
+            $('.baUpdate').addClass('icon-btn-disable');
+            $('.baSubmit').removeClass('icon-btn-disable');
+            $("#baName").val('');
+            $("#baName").prop("disabled", false);
+            $("#baDesc").val('');
+            $("#baLocation").val('');
+            $("#isActive").prop('checked', true);
+            //$("#navigation ul li:nth-child(1) a").trigger('click');
+            $("#navigation ul li:first-child a").trigger('click');
+            $("#businesslocerror").html('');
+            $("#businessdescerror").html('');
+            $("#businessnameerror").html('');
+        });
+
+        $('#project1').click(function () {
+            $(".ui-li-count").css({ "display": "none" });
+        });
+        $('#editProject').click(function () {
+            $(".ui-li-count").css({ "display": "none" });
+        });
+        $('#client1').change(function () {
+            var accountId = $("#client1").val();
+            $('#project1').empty();
+            loadAccountProjects('project1', accountId, null);
+        });
+        $('#editClient').change(function () {
+            var accountId = $("#editClient").val();
+            $('#editProject').empty();
+            loadAccountProjects('editProject', accountId, null);
+        });
+
+
+
+        $('#newRole1').change(function () {
+            var role = $("#newRole1 option:selected").text();
+            if (role === 'Super Admin') {
+                $("#client1").prop("disabled", true);
+                $("#clientLabelId").removeClass('required');
+            } else {
+                $("#client1").prop("disabled", false);
+                $("#clientLabelId").addClass('required');
+            }
+            if (role === 'Super Admin' || role === 'Admin') {
+                onOrOffProject('off');
+                $("#client1").val("");
+                $("#project1").val("");
+                $("#project1").empty().data('options');
+            } else {
+                onOrOffProject('on');
+            }
+        });
+        $('#editRole').change(function () {
+            var role = $("#editRole option:selected").text();
+            if (role === 'Super Admin') {
+                $("#editClient").prop("disabled", true);
+                $("#editClientLabelId").removeClass('required');
+            } else {
+                $("#editClient").prop("disabled", false);
+                $("#editClientLabelId").addClass('required');
+            }
+            if (role === 'Super Admin' || role === 'Admin') {
+                onOrOffEditProject('off');
+                $("#editClient").val("");
+                $("#editProject").val("");
+                $("#editProject").empty().data('options');
+            } else {
+                onOrOffEditProject('on');
+            }
+        });
+
+        $("#iauthorprojectdetails").change(function (value) {
+            $("#jirausernameerror").html('');
+            $("#jirapassworderror").html('');
+            $("#jirajiraurlerror").html('');
+            $("#jiraaccesskeyerror").html('');
+            $("#jirascretkeyerror").html('');
+            $("#jirasprojectdetailserror").html('');
+            $("#jiraprojectiderror").html('');
+            var project_id = $(this).val();
+            if (project_id > 0) {
+                $("#editjiraForm td div").removeClass("ui-input-text ui-body-inherit ui-corner-all ui-state-disabled ui-shadow-inset")
+                $("#jiraUsername").val('').removeAttr("disabled");
+                $("#jirapass").val('').removeAttr("disabled");
+                $("#jiraurl").val('').removeAttr("disabled");
+                $("#jiraaccesskeyId").val('').removeAttr("disabled");
+                $("#jirascretkeyId").val('').removeAttr("disabled");
+                $('#jiraprojectId').val($('#jiraprojectId > option:first').val()).removeAttr("disabled");
+                var data = { fileAdd: "GJC", project_id: project_id, tooltype: "jira" };
+                sendAJAX(data, app_server_url, function (data) {
+                    if (data.data[0] != undefined && data.data[0].config_dtl != undefined) {
+                        var configdetails = JSON.parse(JSON.stringify(data.data[0].config_dtl));
+                        var type = $("input[name='jiratype']:checked").val();
+
+                        if (configdetails.type == "cloud" && type == "cloud") {
+
+                            $("#editjiraForm td div").removeClass("ui-input-text ui-body-inherit ui-corner-all ui-state-disabled ui-shadow-inset")
+                            $("#jiraUsername").val(configdetails.userName).removeAttr("disabled");
+                            $("#jirapass").val(configdetails.password).removeAttr('disabled');
+                            $("#jiraurl").val(configdetails.url).removeAttr('disabled');
+                            $("#jiraaccesskeyId").val(configdetails.jiraaccesskey).removeAttr('disabled');
+                            $("#jirascretkeyId").val(configdetails.jirascretkey).removeAttr('disabled');
+                        } else if (configdetails.type == "premise" && type == "premise") {
+                            $("#editjiraForm td div").removeClass("ui-input-text ui-body-inherit ui-corner-all ui-state-disabled ui-shadow-inset")
+                            $("#jiraUsername").val(configdetails.userName).removeAttr("disabled");
+                            $("#jirapass").val(configdetails.password).removeAttr('disabled');
+                            $("#jiraurl").val(configdetails.url).removeAttr('disabled');
+                        }
+                    }
+                });
+            } else {
+                $("#jiraUsername").val('').attr("disabled", "disabled");
+                $("#jirapass").val('').attr("disabled", "disabled");
+                $("#jiraurl").val('').attr("disabled", "disabled");
+                $("#jiraaccesskeyId").val('').attr("disabled", "disabled");
+                $("#jirascretkeyId").val('').attr("disabled", "disabled");
+                $('#jiraprojectId').val('').attr("disabled", "disabled");
+            }
+        });
+
+
+
+        $("#testcase_project_id").on("change", function (value) {
+
+            $("#projecterror").html("");
+
+            var selProject = $("#testcase_project_id option:selected").val();
+            if (selProject > 0) {
+                var data = { fileAdd: "GPD", projectId: selProject };
+                sendAJAX(data, app_server_url, function (data) {
+                    var existingDBFields = [];
+                    if (data.data[0].templateCols != null) {
+                        var tempdata = data.data[0].templateCols.testcaseTemp;
+                        var colordata = data.data[0].templateCols.testCaseColor;
+                        // var testdataalla = data.data[0].templateCols.testdataall;
+                        if (colordata != null) {
+
+                            $(".Tcconfigboxes").empty();
+                            $.each(colordata, function (index) {
+                                var componentName = colordata[index].name;
+                                var textColor = colordata[index].color;
+                                //write code here
+                                if (componentName != "") {
+                                    existingDBFields.push(componentName);
+                                    if (textColor == "greycolorbox") {
+                                        $(".Tcconfigboxes").append('<li class="tcconfigbox"><span>' + componentName + '</span></li>');
+                                    } else if (textColor == "greencolorbox") {
+                                        $(".Tcconfigboxes").append('<li class="tcconfigbox greencolorbox"><span>' + componentName + '</span></li>');
+                                    } else if (textColor == "bluecolorbox") {
+                                        $(".Tcconfigboxes").append('<li class="tcconfigbox bluecolorbox"><span>' + componentName + '</span><i class="fa fa-trash-o deletefunc"></i></li>');
+                                    }
+                                }
+                            });
+                            var missingFields = filterpredefinedFields(predefinedFields, existingDBFields);
+                            $.each(missingFields, function (index, fieldName) {
+                                if (fieldName != "")
+                                    $(".Tcconfigboxes").append('<li class="tcconfigbox"><span>' + fieldName + '</span></li>');
+                                else
+                                    $(".Tcconfigboxes").append('<li class="tcconfigbox greybgplus unsortable"><span><i class="fa fa-minus fa-plus" aria-hidden="true"></i></span></li>');
+
+                            });
+                        } else {
+                            defaultTemplate();
+                        }
+                    } else {
+                        defaultTemplate();
+                    }
+                });
+            }
+            else {
+                defaultTemplate();
+            }
+
+
+
+            function filterpredefinedFields(predefinedFields, existingDBFields) {
+                var missingFields = [];
+                for (var i = 0; i < predefinedFields.length; i++) {
+                    if (!existingDBFields.includes(predefinedFields[i])) {
+                        missingFields.push(predefinedFields[i]);
+                    }
+                }
+                return missingFields;
+            }
+
+        });  //End of Save
+
+
+    });
+
+    function defaultTemplate() {
+        $(".Tcconfigboxes").empty();
+
+        $.each(predefinedFields, function (index, headervalue) {
+            if (headervalue != "") {
+                $(".Tcconfigboxes").append('<li class="tcconfigbox"><span>' + headervalue + '</span></li>');
+            } else {
+                $(".Tcconfigboxes").append('<li class="tcconfigbox greybgplus unsortable"><span><i class="fa fa-minus fa-plus" aria-hidden="true"></i></span></li>');
+
+            }
+        });
+
+    }
+
+    function checkPcheckProjectExist(userID) {
+
+        var data = { fileAdd: "CPD", createdBy: userID };
+        sendAJAX(data, app_server_url, function (data) {
+            console.log(data.data);
+            if (data["code"] == '200') {
+                var projectdetails = data.data;
+
+                if (projectdetails.length > 0) {
+                    $.each(projectdetails, function (i, item) {
+                        $('#hpprojectid').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    });
+                } else {
+                    $("#navigation ul li:nth-child(5) a").hide();
+                }
+            } else {
+                dailogmsg(data["msg"]);
+            }
+        });
+
+        $("#hpprojectid").change(function () {
+            $("#hpalmproerror").html('');
+            var projectId = $("#hpprojectid").val();
+            var data = { fileAdd: "AQD", versionId: projectId };
+            sendAJAX(data, app_server_url, function (data) {
+                if (data["code"] == '200') {
+                    var qcdata = data.data;
+                    if (qcdata.length > 0) {
+                        $("#hpurl").val(qcdata[0].qc_url);
+                        $("#hpdomain").val(qcdata[0].qc_domain);
+                        $("#hpProject").val(qcdata[0].qc_project);
+                    }
+                    else {
+                        $("#hpurl").val("");
+                        $("#hpdomain").val("");
+                        $("#hpProject").val("");
+                    }
+                } else {
+                    dailogmsg(data["msg"]);
+                }
+            });
+        });
+
+        $("#tabulator-controls  button[name=hide-col]").on("click", function () {
+            $(this).toggleClass("col-hide");
+
+            if ($(this).hasClass("col-hide")) {
+                $("#resultTable").tabulator("showColumn", "rating");
+            } else {
+                $("#resultTable").tabulator("hideColumn", "rating");
+            }
+        });
+
+        $("#tabulator-controls button[name=undo]").on("click", function () {
+            $("#resultTable").tabulator("undo")
+        });
+
+        $("#tabulator-controls  button[name=add-row]").on("click", function () {
+            $("#resultTable").tabulator("addRow", {});
+        });
+
+        $("#tabulator-controls  button[name=download]").on("click", function () {
+            $("#resultTable").tabulator("download", "csv", "Tabulator Example Download.csv");
+        });
+    }
+
+    function parseDateMMDDYYYY(date) {
+        var datesplit = date.split("-");
+        return datesplit[1] + "-" + datesplit[2] + "-" + datesplit[0];
+    }
+
+    function getProjectDetails() {
+
+        var data = { fileAdd: "GPD" };
+        sendAJAX(data, app_server_url, function (data) {
+            $.each(data.data, function (index, item) {
+                $('#testcase_project_id').append($('<option>', {
+                    value: item.id,
+                    text: item.name
+                }));
+            });
+            $.each(data.data, function (index, item) {
+                $('#iauthorprojectdetails').append($('<option>', {
+                    value: item.id,
+                    text: item.name
+                }));
+            });
+
+
+        });
+    }
+
+    function validateText(event) {
+        var keyCode = (event.which) ? event.which : event.keyCode;
+        if ((keyCode < 65 || keyCode > 90) && (keyCode < 97 || keyCode > 123) && (keyCode < 48 || keyCode > 57) && keyCode != 32 && keyCode != 45 && keyCode != 95) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+
+</script>
+
+<body>
+    <div id="modal-bg"></div>
+
+    <div data-role="page" id="iauthoradmin" style="background-size:100% 100%">
+
+
+        <div class="MainHeading">
+            <a href="#" class="logo">
+                <img src="../images/Capgemini_Logo.png">
+            </a>
+            <span class="horzontaline"></span>
+            <h1>iAUTHOR</h1>
+            <div class="header-right">
+                <ul id="navigation-main">
+                    <li id='homeId'>
+                        <a href="#" >Home</a>
+                    </li>
+                    <li id='adminId'>
+                        <a href="#" class="active" >Admin</a>
+                    </li>
+                    <li id="nav-help">
+                        <a title="Help" id="helpId">
+                            <span>?</span>
+                        </a>
+                        <ul id="subnav">
+                            <li id='userGuideId'>
+                                <a href="../docs/iAuthor_User_Guide.pdf" target="_blank">User Guide</a>
+                            </li>
+                            <li id='adminGuideId'>
+                                <a href="../docs/iAuthor_Admin_Guide.pdf" target="_blank">Admin Guide</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div id="userNameId" class="logoutspl">
+                    <span class="welcometext">Welcome</span>
+                    <span style="display:inline-block"><a href="#" title="Logout" class="logouttxt"></a></span>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div data-role="tabs" id="navigation">
+
+            <Ul class="navigationtab">
+                <li>
+                    <a href="#one">Users</a>
+                </li>
+                <li>
+                    <a href="#two">Create User</a>
+                </li>
+                <li>
+                    <a href="#three">Create/Update Business Account</a>
+                </li>
+                <li>
+                    <a href="#four" style="display:none">Edit User</a>
+                </li>
+                <li>
+                    <a href="#five">HP-ALM Configuration </a>
+                </li>
+                <li>
+                    <a href="#six">Test Case Template Configuration</a>
+                </li>
+                <li>
+                    <a href="#seven">JIRA Configuration</a>
+                </li>
+                <li>
+                    <a href="#eight">OpenTest Keywords</a>
+                </li>
+                <!--<li><a href="#three" class="active">Change Password</a></li>-->
+                <!--<li><a href="#four" class="active">Create Client</a></li>-->
+            </Ul>
+            <div id="one">
+                <div class="table">
+                    <div id="tabulator-controls" class="table-controls">
+                        <i class="fa fa-filter fa-fw"></i>
+                        <input name="name" type="text" style="width:280px!important;" placeholder="Filter Table By User ID, Full Name & Email">
+                    </div>
+                    <div id="resultTable"></div>
+
+
+                </div>
+
+            </div>
+
+            <div id="two">
+                <div class="CreateTableHeading">Create User</div>
+                <table border="0" id="CreateUserForm">
+                    <tr>
+                        <td>
+                            <label class="required" id="uidLabel">User ID:</label>
+                        </td>
+
+                        <td>
+                            <div id="createadminusererror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="userAlias">
+                        </td>
+                        <td></td>
+                        <td>
+                            <label class="required" id="fnLabel">Full Name:</label>
+                        </td>
+                        <td>
+                            <div id="createadminfullerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="fullname" class="required1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="pwdLabel">Password:</label>
+                        </td>
+                        <td>
+                            <div id="createadminpasserror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="password" id="pass">
+                        </td>
+                        <td></td>
+                        <td>
+                            <label class="required" id="conPwdLabel">Confirm Password:</label>
+                        </td>
+                        <td>
+                            <div id="createadminconfomrpasserror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="password" id="Confirmpass">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="emailLabel">Email Address:</label>
+                        </td>
+                        <td>
+                            <div id="createadminemailerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="email" name="email" id="email">
+                        </td>
+                        <td></td>
+                        <td>
+                            <label id="selRoleLabel">Select Role:</label>
+                        </td>
+                        <td>
+                            <div id="createadminroleerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="newRole1" name="newRole" tabindex="9">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="startDtLabel">Access Start Date:</label>
+                        </td>
+                        <td>
+                            <div id="createadminstartdateerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="date" id="startdate">
+                        </td>
+                        <td></td>
+                        <td>
+                            <label class="required" id="endtDtLabel">Access End Date:</label>
+                        </td>
+                        <td>
+                            <div id="createadminenddateerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="date" id="enddate">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="clientLabelId" class="required">Select Client:</label>
+                        </td>
+                        <td>
+                            <div id="createadminclienterror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="client1" name="client">
+                                <option value="">SELECT CLIENT</option>
+                            </select>
+                        </td>
+                        <td></td>
+                        <td>
+                            <label id="statusLabel">Status:</label>
+                        </td>
+                        <td colspan="1">
+                            <input type="checkbox" id="act" checked>
+                            <label id="activeLabel">Active</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="projectLabelId" style="display:none">Select Project:</label>
+                        </td>
+                        <td>
+                            <div id="createadminprojecterror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="project1" name="project" style="display:none;height:75px" multiple>
+                                <option value="">SELECT PROJECT</option>
+
+                            </select>
+                        </td>
+                        <td></td>
+                        <td colspn="2"></td>
+                    </tr>
+                </table>
+                <div align="center" class="Back-button">
+                    <button class="usersubmit btn btn-primary">Submit</button>
+                    <button class="btn btn-primary" id="usercancel">Cancel</button>
+                </div>
+
+            </div>
+
+            <div id="three">
+                <div class="CreateTableHeading">Create/Update Business Account</div>
+                <table border="0" id="CreateBusAcctForm">
+                    <tr>
+                        <td>
+                            <label class="required" id="baNameLabel">Name:</label>
+                        </td>
+                        <td>
+                            <div id="businessnameerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="baName">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="baDescLabel">Description:</label>
+                        </td>
+                        <td>
+                            <div id="businessdescerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="baDesc" class="required">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="baLocLabel">Location:</label>
+                        </td>
+                        <td>
+                            <div id="businesslocerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="baLocation">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="baStatusLabel">Status:</label>
+                        </td>
+                        <td colspan="1">
+                            <input type="checkbox" id="isActive" checked>
+                            <label id="baActiveLabel">Active</label>
+                        </td>
+                    </tr>
+                </table>
+                <div align="center" class="Back-button">
+                    <button class="baSubmit btn btn-primary">Submit</button>
+                    <button class="baUpdate btn btn-primary icon-btn-disable">Update</button>
+                    <button class="btn btn-primary" id="baCancel">Cancel</button>
+                </div>
+                </br>
+                </br>
+                </br>
+                <div id="businessAccountTable"></div>
+            </div>
+            <div id="four">
+                <div class="CreateTableHeading">Edit User</div>
+                <table border="0" id="editUserForm">
+                    <tr>
+                        <td>
+                            <label class="required" id="editUidLabel">User ID:</label>
+                        </td>
+                        <td>
+                            <div id="editadminusererror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="editUserAlias" disabled>
+                        </td>
+                        <td></td>
+                        <td>
+                            <label class="required" id="editfnLabel">Full Name:</label>
+                        </td>
+                        <td>
+                            <div id="editadminfullerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="editFullname">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="editPwdLabel">Password:</label>
+                        </td>
+                        <td>
+                            <div id="editadminpasserror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="password" id="editPass">
+                        </td>
+                        <td></td>
+                        <td>
+                            <label class="required" id="editConPwdLabel">Confirm Password:</label>
+                        </td>
+                        <td>
+                            <div id="editadminconfomrpasserror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="password" id="editConfirmpass">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="editEmailLabel">Email Address:</label>
+                        </td>
+                        <td>
+                            <div id="editadminemailerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="email" name="editEmail" id="editEmail">
+                        </td>
+                        <td></td>
+                        <td>
+                            <label id="editRoleLabel">Select Role:</label>
+                        </td>
+                        <td>
+                            <select id="editRole" name="editRole" tabindex="9">
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label id="editStartDtLabel">Access Start Date:</label></td>
+                        <td>
+                            <div id="editadminstartdateerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="date" id="editStartdate" disabled>
+                        </td>
+                        <td></td>
+                        <td><label id="editEndDtLabel">Access End Date:</label></td>
+                        <td>
+                            <div id="editadminenddateerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="date" id="editEnddate">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="editClientLabelId" class="required">Select Client:</label>
+                        </td>
+                        <td>
+                            <div id="editadminclienterror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="editClient" name="editClient">
+                                <option value="">SELECT CLIENT</option>
+                            </select>
+                        </td>
+                        <td></td>
+                        <td>
+                            <label id="editStatusLabel">Status:</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="editAct" checked>
+                            <label id="editActiveLabel">Active</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="editProjectLabelId" style="display:none">Select Project:</label>
+                        </td>
+                        <td>
+                            <div id="editadminprojecterror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="editProject" name="editProject" style="display:none;height:75px" multiple>
+                                <option value="">SELECT PROJECT</option>
+                            </select>
+                        </td>
+                        <td></td>
+                        <td colspn="2">
+                            <input type="hidden" id='editUid' />
+                        </td>
+                    </tr>
+                </table>
+                <div align="center" class="Back-button">
+                    <button class="userUpdate btn btn-primary">Update</button>
+                    <button class="btn btn-primary" id="userEditCancel">Cancel</button>
+                </div>
+
+            </div>
+
+            <div id="five">
+                <div class="CreateTableHeading">HP-ALM Configuration</div>
+                <table border="0" id="editHpalmForm">
+                    <tr>
+                        <td>
+                            <label class="required" id="hpalmSelProjLabel">Select Project:</label>
+                        </td>
+                        <td>
+                            <div id="hpalmproerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="hpprojectid" style="width:200px">
+                                <option value="">SELECT PROJECT</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label id="hpalmConUrlLabel">Connection URL:</label>
+                        </td>
+                        <td>
+                            <input type="text" id="hpurl" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="hpalmDomainLabel">Domain:</label>
+                        </td>
+                        <td>
+                            <input type="text" id="hpdomain" style="width:200px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="hpalmProjectLabel">Project:</label>
+                        </td>
+                        <td>
+                            <input type="text" id="hpProject" style="width:200px">
+                        </td>
+                    </tr>
+
+                </table>
+                <div align="center" class="Back-button">
+                    <button class="hpSave btn btn-primary">Save</button>
+                    <button class="btn btn-primary" id="hpCancel">Cancel</button>
+                </div>
+            </div>
+
+
+            <div id="six" style="overflow: auto;">
+                <div class="CreateTableHeading">Test Case Template Configuration</div>
+                <div class="tabcontent-text">
+                    <p>
+                        <strong>Info!</strong>
+                        <ol>
+                            <li>Define template by selecting required iAuthor field boxes below.</li>
+                            <li>Re arrange the fields by dragging to correct order.</li>
+                            <li>Add custom fields using '+', these custom fields will be added to excel template without data.</li>
+                            <li>Save the template.</li>
+                        </ol>
+                    </p>
+                </div>
+
+                <div style="overflow:auto;">
+
+                    <div id="projecterror" align="left" style="font-size: 12px; color: red;margin:10px 10px 0px 115px;height:15px;"></div>
+                    <div id="selectProject">
+                        <label class="required" id="ttSelProjLabel">Select Project:</label>
+                        <select id="testcase_project_id">
+                            <option value="0">SELECT PROJECT</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <ul class="Tcconfigboxes" id="sortable" style="overflow: auto;">
+
+                </ul>
+                <div style="text-align: center;margin-top: 20px;">
+                    <button class="save-btnTC btn">Save Template</button>
+
+                </div>
+
+            </div>
+            <div id="seven" style="overflow: auto;">
+                <div class="CreateTableHeading">JIRA Configuration</div>
+                <table border="0">
+
+                </table>
+
+                <table border="0" id="editjiraForm">
+
+                    <tr>
+                        <td>
+                            <label class="required" id="jiraTypeLabel">Type:</label>
+                        </td>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input type="radio" name="jiratype" value="cloud" style="width: 10px!important;" checked>
+                                        <label>Cloud</label>
+                                    </td>
+                                    <td>
+                                        <input type="radio" name="jiratype" value="premise" style="width: 10px!important;">
+                                        <label>On Premise</label>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="jiraSelProjLabel">Select Project:</label>
+                        </td>
+                        <td>
+                            <div id="jirasprojectdetailserror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="iauthorprojectdetails" style="width:200px">
+                                <option value="0">SELECT PROJECT</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="jiraUNLabel">User Name:</label>
+                        </td>
+                        <td>
+                            <div id="jirausernameerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="jiraUsername" style="width:200px" disabled>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <label class="required" id="jiraPwdLabel">Password:</label>
+                        </td>
+                        <td>
+                            <div id="jirapassworderror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="password" id="jirapass" style="width:200px" disabled>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label class="required" id="jiraConUrlLabel">Connection URL:</label>
+                        </td>
+                        <td>
+                            <div id="jirajiraurlerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="jiraurl" style="width:200px" disabled>
+                        </td>
+                    </tr>
+
+                    <tr id="accessid">
+                        <td>
+                            <label class="required" id="jiraAccessKeyLabel">Access Key:</label>
+                        </td>
+                        <td>
+                            <div id="jiraaccesskeyerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="jiraaccesskeyId" style="width:200px" disabled>
+                        </td>
+                    </tr>
+                    <tr id="secretid">
+                        <td>
+                            <label class="required" id="jiraSecKeyLabel">Secret Key:</label>
+                        </td>
+                        <td>
+                            <div id="jirascretkeyerror" align="left" style="font-size: 12px; color: red;"></div>
+                            <input type="text" id="jirascretkeyId" style="width:200px" disabled>
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="save-btnTC btn" id="getProjectId">Get Project Details</button>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <label class="required" id="jiraProjLabel">Select Jira Project:</label>
+                        </td>
+                        <td>
+                            <div id="jiraprojectiderror" align="left" style="font-size: 12px; color: red;"></div>
+                            <select id="jiraprojectId" style="width:200px" disabled>
+                                <option value="0">SELECT PROJECT</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <button class="save-btnTC btn" id="jiraSaveId">Save</button>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div id="eight" style="overflow: auto;">
+                <div style="overflow: auto;">
+                    <span class="opentext-Text">
+                        Configure OpenTest Keywords
+                    </span>
+                </div>
+                <div id="tabs">
+                    <ul id="openTesttabs">
+                        <li id="appkey">
+                            <a href="#tabs-1" value="appium">Appium Keywords</a>
+                        </li>
+                        <li id="seleniumkey">
+                            <a href="#tabs-2" value="selenium">Selenium Keywords</a>
+                        </li>
+                        <li id="generickey">
+                            <a href="#tabs-3" value="generic">Generic Keywords</a>
+                        </li>
+
+                    </ul>
+                    <div id="tabs-1" value="appium">                      
+
+                        <div class="appiumKeywordsave" style="display:none;">
+                            <input type="hidden" id="hiddenappium" value="0" />
+                            <table border="0" id="appiumKeywordsaveTable">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <label class="required">Keyword Name:</label>
+                                        </td>
+                                        <td>
+                                            <div id="errorkeyNameappium" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Name</div>
+                                            <div class="">
+                                                <input type="text" id="keyNameappium">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="required">Keyword Action:</label>
+                                        </td>
+                                        <td>
+                                                <div id="errorkeyActionappium" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Action</div>
+                                            <div class="">
+                                                <input type="text" id="keyActionappium" class="required">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="required">Keyword Description:</label>
+                                        </td>
+                                        <td>
+                                            <div id="errorkeydescappium" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Description</div>
+                                            <div>
+                                                <textarea id="keydescappium"></textarea>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="addargumentbtn" value="appium">
+                                <button class="baSave btn btn-primary addArguments" style="float:right;">Add Arguments</button>
+                            </div>
+                            <table id="opentestKeywordsCreateappium" style="width:75%" border="0">
+                                <thead>
+                                    <tr>
+                                        <th style="width:30%;">Arguments</th>
+                                        <th style="width:30%;">Type</th>
+                                        <th style="width:30%;">List of Values</th>
+                                        <th style="width:10%;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applyOpenTestCreateRowinnerappium" value="appium">
+                                    <input type="hidden" id="hiddenappium" />
+                                </tbody>
+                            </table>
+                            <div class="opetextsave-btns" value="appium">
+                                <button class="btn btn-primary saveOpenTest">Save</button>
+                                <button class="btn btn-primary cancelbtn">Cancel</button>
+                            </div>
+                        </div>
+                        <div id="opentestKeywordappiumdisplay">
+                            <span class="opetext-btns">                                
+                                <button class="baSave btn btn-primary addOpenTest" value="appium">Add Keyword</button>
+                            </span>
+                            <table id="opentestKeywordappium" style="width:100%" border="0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 4%;text-align:center;">#</th>
+                                        <th style="width: 3%;text-align:center;"></th>
+                                        <th style="width: 14%;">Keyword Name</th>
+                                        <th style="width: 14%;">Keyword Action</th>
+                                        <th style="width: 14%;">Keyword Description</th>
+                                        <th style="width: 14%;">Arguments</th>
+                                        <th style="width: 14%;">Type of value</th>
+                                        <th style="width: 15%;">List of Values</th>
+                                        <th style="width: 8%;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="OpenTestRowinnerappium" value="appium"></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div id="tabs-2" value="selenium">
+                        <div class="seleniumKeywordsave" style="display:none;">
+                            <input type="hidden" id="hiddenselenium" value="0" />
+                            <table border="0" id="seleniumKeywordsaveTable">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <label class="required">Keyword Name:</label>
+                                        </td>
+                                        <td>                                           
+                                            <div id="errorkeyNameselenium" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Name</div>
+                                            <div class="">
+                                                <input type="text" id="keyNameselenium">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="required">Keyword Action:</label>
+                                        </td>
+                                        <td>
+                                            <div id="errorkeyActionselenium" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Action</div>
+                                            <div class="">
+                                                <input type="text" id="keyActionselenium" class="required">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label class="required">Keyword Description:</label>
+                                        </td>
+                                        <td>
+                                            <div id="errorkeydescselenium" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Description</div>
+                                            <div>
+                                                <textarea id="keydescselenium"></textarea>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                            <div class="addargumentbtn" value="selenium">
+                                <button class="baSave btn btn-primary addArguments" style="float:right;">Add Arguments</button>
+                            </div>
+                            <table id="opentestKeywordsCreateselenium" style="width:75%" border="0">
+                                <thead>
+                                    <tr>
+                                        <th style="width:30%;">Arguments</th>
+                                        <th style="width:30%;">Type</th>
+                                        <th style="width:30%;">List of Values</th>
+                                        <th style="width:10%;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applyOpenTestCreateRowinnerselenium" value="selenium">
+                                    <input type="hidden" id="hiddenselenium" />
+                                </tbody>
+                            </table>
+                            <div class="opetextsave-btns" value="selenium">
+                                <button class="btn btn-primary saveOpenTest">Save</button>
+                                <button class="btn btn-primary cancelbtn">Cancel</button>
+                            </div>
+                        </div>
+                        <div class="opentestKeywordselenium">
+                        <span class="opetext-btns" value="selenium">
+                            <button class="baSave btn btn-primary addOpenTest" value="selenium">Add Keyword</button>
+                        </span>
+                        <table id="opentestKeywordselenium" style="width:100%" border="0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 4%;text-align:center;">#</th>
+                                    <th style="width: 3%;text-align:center;"></th>
+                                    <th style="width: 14%;">Keyword Name</th>
+                                    <th style="width: 14%;">Keyword Action</th>
+                                    <th style="width: 14%;">Keyword Description</th>
+                                    <th style="width: 14%;">Arguments</th>
+                                    <th style="width: 14%;">Type of value</th>
+                                    <th style="width: 15%;">List of Values</th>
+                                    <th style="width: 8%;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="OpenTestRowinnerselenium" value="selenium"></tbody>
+                        </table>
+                    </div>
+                    </div>
+                    <div id="tabs-3">
+                            <div class="genericKeywordsave" style="display:none;">
+                                    <input type="hidden" id="hiddengeneric" value="0" />
+                                    <table border="0" id="genericKeywordsaveTable">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <label class="required">Name:</label>
+                                                </td>
+                                                <td>
+                                                    <div id="errorkeyNamegeneric" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Name</div>
+                                                    <div class="">
+                                                        <input type="text" id="keyNamegeneric">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label class="required">Keyword Action:</label>
+                                                </td>
+                                                <td>
+                                                    <div id="errorkeyActiongeneric" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Action</div>
+                                                    <div class="">
+                                                        <input type="text" id="keyActiongeneric" class="required">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <label class="required">Keyword Description:</label>
+                                                </td>
+                                                <td>
+                                                    <div id="errorkeydescgeneric" align="left" style="font-size: 12px; color: red;display:none;">Please Enter Keyword Description</div>
+                                                    <div>
+                                                        <textarea id="keydescgeneric"></textarea>
+                                                    </div>
+                                                </td>
+                                            </tr>
+        
+                                        </tbody>
+                                    </table>
+                                    <div class="addargumentbtn" value="generic">
+                                        <button class="baSave btn btn-primary addArguments" style="float:right;">Add Arguments</button>
+                                    </div>
+                                    <table id="opentestKeywordsCreategeneric" style="width:75%" border="0">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:30%;">Arguments</th>
+                                                <th style="width:30%;">Type</th>
+                                                <th style="width:30%;">List of Values</th>
+                                                <th style="width:10%;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="applyOpenTestCreateRowinnergeneric" value="generic">
+                                            <input type="hidden" id="hiddengeneric" />
+                                        </tbody>
+                                    </table>
+                                    <div class="opetextsave-btns" value="generic">
+                                        <button class="btn btn-primary saveOpenTest">Save</button>
+                                        <button class="btn btn-primary cancelbtn">Cancel</button>
+                                    </div>
+                                </div>
+                                <div id="opentestKeywordgenericdisplay">
+                                    <span class="opetext-btns">                                
+                                        <button class="baSave btn btn-primary addOpenTest" value="generic">Add Keyword</button>
+                                    </span>
+                                    <table id="opentestKeywordgeneric" style="width:100%" border="0">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 4%;text-align:center;">#</th>
+                                                <th style="width: 3%;text-align:center;"></th>
+                                                <th style="width: 14%;">Keyword Name</th>
+                                                <th style="width: 14%;">Keyword Action</th>
+                                                <th style="width: 14%;">Keyword Description</th>
+                                                <th style="width: 14%;">Arguments</th>
+                                                <th style="width: 14%;">Type of value</th>
+                                                <th style="width: 15%;">List of Values</th>
+                                                <th style="width: 8%;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="OpenTestRowinnergeneric" value="generic"></tbody>
+                                    </table>
+                                </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    <div id="popupdata"></div>
+
+    </div>
+
+
+
+    </div>
+    </div>
+    </div>
+
+
+
+
+    </div>
+    </div>
+
+    </div>
+    </div>
+ 
+</body>
+
+</html>
